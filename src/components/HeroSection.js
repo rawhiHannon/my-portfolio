@@ -83,7 +83,9 @@ const HeroSection = () => {
   };
 
   return (
-<section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-100 pt-32 md:pt-0">      {/* Animated Background */}
+<section id="home" 
+className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-100 pt-32 md:pt-0 pb-10 lg:pb-0"
+>
       <canvas
         ref={canvasRef}
         className="absolute inset-0 z-0"
@@ -131,6 +133,7 @@ const HeroSection = () => {
                   </div>
                 </div>
               </motion.div>
+
 
               {/* Professional Info */}
               <motion.div
@@ -234,6 +237,36 @@ const HeroSection = () => {
               </motion.p>
             </motion.div>
 
+              {/* ─── Mobile-only Action Buttons ─── */}
+              <motion.div
+                className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8 lg:hidden"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.8 }}
+              >
+                <button
+                  onClick={scrollToProjects}
+                  className="group relative px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-full overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-cyan-500/25"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <span className="relative z-10 flex items-center gap-2">
+                    {t('hero.cta')}
+                    <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                  </span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                </button>
+
+                <button
+                  onClick={scrollToContact}
+                  className="px-8 py-4 border-2 border-cyan-500 text-cyan-600 font-semibold rounded-full hover:bg-cyan-500 hover:text-white transition-all duration-300 shadow-md"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {t('hero.contact')}
+                </button>
+              </motion.div>
+
             {/* Slogan */}
             <motion.div
               className="p-6 bg-gradient-to-r from-cyan-50 to-blue-50 rounded-2xl border border-cyan-200/50 shadow-lg"
@@ -247,12 +280,12 @@ const HeroSection = () => {
             </motion.div>
 
             {/* Action Buttons - RTL Aligned */}
-            <motion.div 
-              className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center lg:items-start pt-8"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.8 }}
-            >
+              <motion.div 
+                className="hidden lg:flex flex-col sm:flex-row gap-4 justify-center lg:justify-start items-center lg:items-start pt-8"
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.8 }}
+              >
               <motion.button
                 onClick={scrollToProjects}
                 className="group relative px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-full overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-cyan-500/25"
