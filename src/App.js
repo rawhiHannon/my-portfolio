@@ -13,22 +13,177 @@ function App() {
   const { isRTL } = useLanguage();
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [currentSection, setCurrentSection] = useState(0);
+  const [isScrolling, setIsScrolling] = useState(false);
+
+  const sections = ['home', 'services', 'projects', 'contact'];
 
   useEffect(() => {
-    // Set loaded state
     setIsLoaded(true);
 
-    // Handle scroll for scroll-to-top button
-    const handleScroll = () => {
+    let scrollTimeout;
+    let lastScrollTime = 0;
+    const scrollCooldown = 1000; // 1 second cooldown between snaps
+
+    const handleScroll = (e) => {
+      const now = Date.now();
+      
+      // Update scroll-to-top button
       setShowScrollTop(window.scrollY > 400);
+
+      // Skip if currently scrolling or in cooldown
+      if (isScrolling || (now - lastScrollTime) < scrollCooldown) {
+        return;
+      }
+
+      // Clear existing timeout
+      clearTimeout(scrollTimeout);
+
+      // Set timeout to handle scroll snap
+      scrollTimeout = setTimeout(() => {
+        const scrollY = window.scrollY;
+        const windowHeight = window.innerHeight;
+        const documentHeight = document.documentElement.scrollHeight;
+        
+        // Check if we're at the very bottom or top
+        const isAtBottom = (scrollY + windowHeight) >= documentHeight - 10;
+        const isAtTop = scrollY <= 10;
+        
+        // Don't snap if at extremes
+        if (isAtBottom || isAtTop) {
+          return;
+        }
+        
+        // Calculate which section we should be in based on scroll position
+        const sectionIndex = Math.round(scrollY / windowHeight);
+        const targetSection = Math.max(0, Math.min(sectionIndex, sections.length - 1));
+        
+        // Check if we're close to a section boundary (within 20% of viewport height)
+        const sectionPosition = targetSection * windowHeight;
+        const distanceFromSection = Math.abs(scrollY - sectionPosition);
+        const snapThreshold = windowHeight * 0.2; // 20% of viewport height
+        
+        if (distanceFromSection < snapThreshold && targetSection !== currentSection) {
+          lastScrollTime = now;
+          setIsScrolling(true);
+          setCurrentSection(targetSection);
+          
+          // Smooth scroll to the target section
+          const targetElement = document.getElementById(sections[targetSection]);
+          if (targetElement) {
+            targetElement.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+            
+            // Reset scrolling flag after animation completes
+            setTimeout(() => {
+              setIsScrolling(false);
+            }, 800); // Match the scroll animation duration
+          } else {
+            setIsScrolling(false);
+          }
+        }
+      }, 150); // Debounce scroll events
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    // Handle wheel events for more precise control
+    const handleWheel = (e) => {
+      const now = Date.now();
+      
+      // Skip if currently scrolling or in cooldown
+      if (isScrolling || (now - lastScrollTime) < scrollCooldown) {
+        e.preventDefault();
+        return;
+      }
+
+      const delta = e.deltaY;
+      const scrollY = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+      
+      // Calculate current section based on scroll position
+      const currentSectionIndex = Math.round(scrollY / windowHeight);
+      
+      // Check if we're at the very bottom of the page
+      const isAtBottom = (scrollY + windowHeight) >= documentHeight - 10;
+      
+      // Check if we're at the very top of the page
+      const isAtTop = scrollY <= 10;
+      
+      // Don't snap if trying to scroll down when already at bottom
+      if (delta > 0 && isAtBottom) {
+        return; // Allow normal behavior (stay at bottom)
+      }
+      
+      // Don't snap if trying to scroll up when already at top
+      if (delta < 0 && isAtTop) {
+        return; // Allow normal behavior (stay at top)
+      }
+      
+      // Handle fast scrolling - jump multiple sections based on scroll intensity
+      const scrollIntensity = Math.abs(delta);
+      let sectionJump = 1;
+      
+      if (scrollIntensity > 100) {
+        sectionJump = 2;
+      }
+      if (scrollIntensity > 200) {
+        sectionJump = 3;
+      }
+      if (scrollIntensity > 300) {
+        // Very fast scroll - go to extreme end
+        sectionJump = sections.length;
+      }
+      
+      // Determine target section based on scroll direction and intensity
+      let targetSectionIndex;
+      if (delta > 0) {
+        // Scrolling down
+        targetSectionIndex = Math.min(currentSectionIndex + sectionJump, sections.length - 1);
+      } else {
+        // Scrolling up
+        targetSectionIndex = Math.max(currentSectionIndex - sectionJump, 0);
+      }
+      
+      // Only snap if we're changing sections and scroll is significant
+      if (targetSectionIndex !== currentSectionIndex && Math.abs(delta) > 10) {
+        e.preventDefault();
+        lastScrollTime = now;
+        setIsScrolling(true);
+        setCurrentSection(targetSectionIndex);
+        
+        const targetElement = document.getElementById(sections[targetSectionIndex]);
+        if (targetElement) {
+          targetElement.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+          
+          setTimeout(() => {
+            setIsScrolling(false);
+          }, 800);
+        } else {
+          setIsScrolling(false);
+        }
+      }
+    };
+
+    // Add event listeners
+    window.addEventListener('scroll', handleScroll, { passive: false });
+    window.addEventListener('wheel', handleWheel, { passive: false });
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('wheel', handleWheel);
+      clearTimeout(scrollTimeout);
+    };
+  }, [isScrolling, currentSection, sections]);
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setCurrentSection(0);
+    document.getElementById('home')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   if (!isLoaded) {
@@ -52,20 +207,39 @@ function App() {
   }
 
   return (
-    <div className={`App ${isRTL ? 'rtl' : 'ltr'} scroll-smooth`} dir={isRTL ? 'rtl' : 'ltr'}>
+    <div className={`App ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Floating Background Elements */}
       <FloatingElements />
       
       {/* Header */}
       <ModernHeader />
       
-      {/* Main Content with proper spacing for mobile header */}
+      {/* Main Content with section snapping */}
       <main className="relative z-10">
         <HeroSection />
         <ServicesSection />
         <ProjectsSection />
         <ContactSection />
       </main>
+
+      {/* Section Indicator */}
+      <div className="fixed right-8 top-1/2 transform -translate-y-1/2 z-40 hidden lg:flex flex-col gap-4">
+        {sections.map((section, index) => (
+          <button
+            key={section}
+            onClick={() => {
+              setCurrentSection(index);
+              document.getElementById(section)?.scrollIntoView({ behavior: 'smooth' });
+            }}
+            className={`w-3 h-3 rounded-full transition-all duration-300 ${
+              index === currentSection
+                ? 'bg-cyan-500 scale-150 shadow-lg shadow-cyan-500/50'
+                : 'bg-gray-400 hover:bg-gray-300'
+            }`}
+            title={`עבור ל${section === 'home' ? 'בית' : section === 'services' ? 'שירותים' : section === 'projects' ? 'פרויקטים' : 'צור קשר'}`}
+          />
+        ))}
+      </div>
 
       {/* Scroll to Top Button */}
       <AnimatePresence>
@@ -86,7 +260,7 @@ function App() {
       </AnimatePresence>
 
       {/* Footer */}
-      <footer className="py-12 bg-black border-t border-gray-800 relative overflow-hidden">
+      <footer className="py-12 bg-gray-50 border-t border-gray-200 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-transparent to-blue-600/5" />
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
@@ -97,20 +271,20 @@ function App() {
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
             >
-              <h3 className="text-2xl font-bold text-white mb-2">פתרונות גאודטיים</h3>
-              <p className="text-gray-400">מהנדס מדידות מוסמך</p>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">נ.ס. שירותי הנדסה</h3>
+              <p className="text-gray-600">ניזאר סמרי - מהנדס אזרחי מוסמך</p>
             </motion.div>
             
             <motion.div
-              className="border-t border-gray-800 pt-8"
+              className="border-t border-gray-200 pt-8"
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               transition={{ duration: 0.6, delay: 0.2 }}
               viewport={{ once: true }}
             >
               <p className="text-gray-500 text-sm">
-                © 2024 פתרונות גאודטיים. כל הזכויות שמורות. | 
-                <span className="text-cyan-400"> הנדסה מדויקת לעתיד</span>
+                © 2024 נ.ס. שירותי הנדסה. כל הזכויות שמורות. | 
+                <span className="text-cyan-600"> הנדסה מדויקת לעתיד</span>
               </p>
             </motion.div>
           </div>

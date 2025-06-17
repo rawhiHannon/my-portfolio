@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Compass } from 'lucide-react';
+import { Menu, X, Calculator } from 'lucide-react';
 import { useLanguage } from '../hooks/useLanguage';
-import LanguageToggle from './LanguageToggle';
 
 const ModernHeader = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -66,11 +65,11 @@ const ModernHeader = () => {
             whileHover={{ scale: 1.05 }}
           >
             <div className="p-2 bg-gradient-to-r from-cyan-400 to-blue-600 rounded-lg">
-              <Compass size={24} className="text-white" />
+              <Calculator size={24} className="text-white" />
             </div>
-            <div className={`${isRTL ? 'text-right' : 'text-left'}`}>
-              <h1 className="text-xl font-bold text-white">Geodetic Solutions</h1>
-              <p className="text-xs text-cyan-400">Licensed Engineer</p>
+            <div className="text-right">
+              <h1 className="text-xl font-bold text-white">נ.ס. שירותי הנדסה</h1>
+              <p className="text-xs text-cyan-400">ניזאר סמרי - מהנדס אזרחי</p>
             </div>
           </motion.div>
 
@@ -87,18 +86,16 @@ const ModernHeader = () => {
               >
                 {t(`navigation.${item.key}`)}
                 <motion.div
-                  className={`absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-cyan-400 to-blue-600 transition-all duration-300 ${
+                  className={`absolute bottom-0 right-0 h-0.5 bg-gradient-to-l from-cyan-400 to-blue-600 transition-all duration-300 ${
                     activeSection === item.key ? 'w-full' : 'w-0 group-hover:w-full'
                   }`}
                 />
               </motion.button>
             ))}
-            <LanguageToggle />
           </nav>
 
           {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center gap-4">
-            <LanguageToggle />
+          <div className="md:hidden">
             <motion.button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="p-2 text-white"
@@ -123,12 +120,12 @@ const ModernHeader = () => {
                 <motion.button
                   key={item.key}
                   onClick={() => scrollToSection(item.href)}
-                  className={`block w-full py-4 px-4 transition-colors duration-200 text-lg font-medium ${
+                  className={`block w-full py-4 px-4 transition-colors duration-200 text-lg font-medium text-right ${
                     activeSection === item.key 
                       ? 'text-cyan-400 bg-cyan-500/10' 
                       : 'text-gray-300 hover:text-cyan-400 hover:bg-white/5'
-                  } ${isRTL ? 'text-right' : 'text-left'}`}
-                  initial={{ opacity: 0, x: isRTL ? 20 : -20 }}
+                  }`}
+                  initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.1 }}
                 >
