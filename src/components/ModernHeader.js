@@ -2,31 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Calculator } from 'lucide-react';
 import { useLanguage } from '../hooks/useLanguage';
+import { useSectionContext } from '../App';
 
 const ModernHeader = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [activeSection, setActiveSection] = useState('home');
   const { t, isRTL } = useLanguage();
+  const { currentSection, navigateToSection, sections } = useSectionContext();
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
-      
-      // Update active section
-      const sections = ['home', 'services', 'projects', 'contact'];
-      const scrollPosition = window.scrollY + 200;
-      
-      for (const section of sections) {
-        const element = document.getElementById(section);
-        if (element) {
-          const { offsetTop, offsetHeight } = element;
-          if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
-            setActiveSection(section);
-            break;
-          }
-        }
-      }
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -41,10 +27,8 @@ const ModernHeader = () => {
   ];
 
   const scrollToSection = (href) => {
-    const element = document.querySelector(href);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
+    const sectionName = href.replace('#', '');
+    navigateToSection(sectionName);
     setIsMenuOpen(false);
   };
 
@@ -88,14 +72,14 @@ const ModernHeader = () => {
                 key={item.key}
                 onClick={() => scrollToSection(item.href)}
                 className={`text-gray-300 hover:text-cyan-400 font-medium transition-colors duration-200 relative group ${
-                  activeSection === item.key ? 'text-cyan-400' : ''
+                  currentSection === item.key ? 'text-cyan-400' : ''
                 }`}
                 whileHover={{ y: -2 }}
               >
                 {t(`navigation.${item.key}`)}
                 <motion.div
                   className={`absolute bottom-0 right-0 h-0.5 bg-gradient-to-l from-cyan-400 to-blue-600 transition-all duration-300 ${
-                    activeSection === item.key ? 'w-full' : 'w-0 group-hover:w-full'
+                    currentSection === item.key ? 'w-full' : 'w-0 group-hover:w-full'
                   }`}
                 />
               </motion.button>
@@ -129,7 +113,7 @@ const ModernHeader = () => {
                   key={item.key}
                   onClick={() => scrollToSection(item.href)}
                   className={`block w-full py-4 px-4 transition-colors duration-200 text-lg font-medium text-right ${
-                    activeSection === item.key 
+                    currentSection === item.key 
                       ? 'text-cyan-400 bg-cyan-500/10' 
                       : 'text-gray-300 hover:text-cyan-400 hover:bg-white/5'
                   }`}

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, createContext, useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronUp } from 'lucide-react';
 import { useLanguage } from './hooks/useLanguage';
@@ -9,6 +9,17 @@ import ProjectsSection from './components/ProjectsSection';
 import ContactSection from './components/ContactSection';
 import FloatingElements from './components/FloatingElements';
 
+// Create context for section navigation
+const SectionContext = createContext();
+
+export const useSectionContext = () => {
+  const context = useContext(SectionContext);
+  if (!context) {
+    throw new Error('useSectionContext must be used within SectionProvider');
+  }
+  return context;
+};
+
 function App() {
   const { isRTL } = useLanguage();
   const [showScrollTop, setShowScrollTop] = useState(false);
@@ -17,6 +28,37 @@ function App() {
   const [isScrolling, setIsScrolling] = useState(false);
 
   const sections = ['home', 'services', 'projects', 'contact'];
+
+  // Function to navigate to a specific section
+  const navigateToSection = (sectionName) => {
+    const sectionIndex = sections.indexOf(sectionName);
+    if (sectionIndex !== -1) {
+      setCurrentSection(sectionIndex);
+      setIsScrolling(true);
+      
+      const targetElement = document.getElementById(sectionName);
+      if (targetElement) {
+        targetElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+        
+        setTimeout(() => {
+          setIsScrolling(false);
+        }, 800);
+      } else {
+        setIsScrolling(false);
+      }
+    }
+  };
+
+  // Context value
+  const sectionContextValue = {
+    currentSection: sections[currentSection],
+    currentSectionIndex: currentSection,
+    navigateToSection,
+    sections
+  };
 
   useEffect(() => {
     setIsLoaded(true);
@@ -182,8 +224,7 @@ function App() {
   }, [isScrolling, currentSection, sections]);
 
   const scrollToTop = () => {
-    setCurrentSection(0);
-    document.getElementById('home')?.scrollIntoView({ behavior: 'smooth' });
+    navigateToSection('home');
   };
 
   if (!isLoaded) {
@@ -207,90 +248,57 @@ function App() {
   }
 
   return (
-    <div className={`App ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
-      {/* Floating Background Elements */}
-      <FloatingElements />
-      
-      {/* Header */}
-      <ModernHeader />
-      
-      {/* Main Content with section snapping */}
-      <main className="relative z-10">
-        <HeroSection />
-        <ServicesSection />
-        <ProjectsSection />
-        <ContactSection />
-      </main>
+    <SectionContext.Provider value={sectionContextValue}>
+      <div className={`App ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
+        {/* Floating Background Elements */}
+        <FloatingElements />
+        
+        {/* Header */}
+        <ModernHeader />
+        
+        {/* Main Content with section snapping */}
+        <main className="relative z-10">
+          <HeroSection />
+          <ServicesSection />
+          <ProjectsSection />
+          <ContactSection />
+        </main>
 
-      {/* Section Indicator */}
-      <div className="fixed right-8 top-1/2 transform -translate-y-1/2 z-40 hidden lg:flex flex-col gap-4">
-        {sections.map((section, index) => (
-          <button
-            key={section}
-            onClick={() => {
-              setCurrentSection(index);
-              document.getElementById(section)?.scrollIntoView({ behavior: 'smooth' });
-            }}
-            className={`w-3 h-3 rounded-full transition-all duration-300 ${
-              index === currentSection
-                ? 'bg-cyan-500 scale-150 shadow-lg shadow-cyan-500/50'
-                : 'bg-gray-400 hover:bg-gray-300'
-            }`}
-            title={`עבור ל${section === 'home' ? 'בית' : section === 'services' ? 'שירותים' : section === 'projects' ? 'פרויקטים' : 'צור קשר'}`}
-          />
-        ))}
-      </div>
-
-      {/* Scroll to Top Button */}
-      <AnimatePresence>
-        {showScrollTop && (
-          <motion.button
-            onClick={scrollToTop}
-            className="fixed bottom-8 right-8 p-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-full shadow-2xl hover:shadow-cyan-500/25 z-50 group"
-            initial={{ opacity: 0, scale: 0, y: 100 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0, y: 100 }}
-            whileHover={{ scale: 1.1, y: -5 }}
-            whileTap={{ scale: 0.9 }}
-            transition={{ type: "spring", stiffness: 260, damping: 20 }}
-          >
-            <ChevronUp size={24} className="group-hover:-translate-y-1 transition-transform duration-300" />
-          </motion.button>
-        )}
-      </AnimatePresence>
-
-      {/* Footer */}
-      {/* <footer className="py-12 bg-gray-50 border-t border-gray-200 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-transparent to-blue-600/5" />
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <motion.div
-              className="mb-8"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              viewport={{ once: true }}
-            >
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">נ.ס. שירותי הנדסה</h3>
-              <p className="text-gray-600">ניזאר סמרי - מהנדס אזרחי מוסמך</p>
-            </motion.div>
-            
-            <motion.div
-              className="border-t border-gray-200 pt-8"
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              viewport={{ once: true }}
-            >
-              <p className="text-gray-500 text-sm">
-                © 2024 נ.ס. שירותי הנדסה. כל הזכויות שמורות. | 
-                <span className="text-cyan-600"> הנדסה מדויקת לעתיד</span>
-              </p>
-            </motion.div>
-          </div>
+        {/* Section Indicator */}
+        <div className="fixed right-8 top-1/2 transform -translate-y-1/2 z-40 hidden lg:flex flex-col gap-4">
+          {sections.map((section, index) => (
+            <button
+              key={section}
+              onClick={() => navigateToSection(section)}
+              className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                index === currentSection
+                  ? 'bg-cyan-500 scale-150 shadow-lg shadow-cyan-500/50'
+                  : 'bg-gray-400 hover:bg-gray-300'
+              }`}
+              title={`עבור ל${section === 'home' ? 'בית' : section === 'services' ? 'שירותים' : section === 'projects' ? 'פרויקטים' : 'צור קשר'}`}
+            />
+          ))}
         </div>
-      </footer> */}
-    </div>
+
+        {/* Scroll to Top Button */}
+        <AnimatePresence>
+          {showScrollTop && (
+            <motion.button
+              onClick={scrollToTop}
+              className="fixed bottom-8 right-8 p-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-full shadow-2xl hover:shadow-cyan-500/25 z-50 group"
+              initial={{ opacity: 0, scale: 0, y: 100 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0, y: 100 }}
+              whileHover={{ scale: 1.1, y: -5 }}
+              whileTap={{ scale: 0.9 }}
+              transition={{ type: "spring", stiffness: 260, damping: 20 }}
+            >
+              <ChevronUp size={24} className="group-hover:-translate-y-1 transition-transform duration-300" />
+            </motion.button>
+          )}
+        </AnimatePresence>
+      </div>
+    </SectionContext.Provider>
   );
 }
 
