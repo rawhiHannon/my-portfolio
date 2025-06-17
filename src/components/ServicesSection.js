@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
-import { Calculator, FileText, ClipboardCheck, TrendingUp } from 'lucide-react';
+import { Calculator, FileText, ClipboardCheck, TrendingUp, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLanguage } from '../hooks/useLanguage';
 
 const ServicesSection = () => {
   const { t, isRTL } = useLanguage();
   const [ref, inView] = useInView({ threshold: 0.1, triggerOnce: true });
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   const services = [
     {
@@ -34,6 +35,14 @@ const ServicesSection = () => {
       delay: 0.4
     }
   ];
+
+  const nextService = () => {
+    setCurrentIndex((prev) => (prev + 1) % services.length);
+  };
+
+  const prevService = () => {
+    setCurrentIndex((prev) => (prev - 1 + services.length) % services.length);
+  };
 
   return (
     <section id="services" className="relative min-h-screen py-24 md:py-24 pt-32 md:pt-24 bg-gradient-to-b from-white via-gray-50 to-white overflow-hidden">
@@ -76,46 +85,128 @@ const ServicesSection = () => {
           </motion.p>
         </motion.div>
 
-        {/* Services Grid - Fixed dimensions */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
-          {services.map((service, index) => (
-            <motion.div
-              key={service.key}
-              className="group relative"
-              initial={{ opacity: 0, y: 50 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, delay: service.delay }}
-            >
-              <div className="relative p-8 bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-2xl hover:bg-white transition-all duration-500 group-hover:scale-105 group-hover:border-cyan-400/50 h-80 flex flex-col shadow-xl shadow-gray-900/5 hover:shadow-2xl hover:shadow-cyan-500/10">
-                {/* Gradient Background */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${service.gradient} opacity-0 group-hover:opacity-5 rounded-2xl transition-opacity duration-500`} />
-                
-                {/* Icon */}
-                <motion.div
-                  className={`inline-flex p-4 bg-gradient-to-br ${service.gradient} rounded-xl mb-6 group-hover:scale-110 transition-transform duration-300 self-start shadow-lg`}
-                  whileHover={{ rotate: 5 }}
-                >
-                  <service.icon size={32} className="text-white" />
-                </motion.div>
+        {/* Services Grid - Desktop: Full grid, Mobile: Single item with navigation */}
+        <div className="mb-16">
+          {/* Desktop Grid - Hidden on mobile */}
+          <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {services.map((service, index) => (
+              <motion.div
+                key={service.key}
+                className="group relative"
+                initial={{ opacity: 0, y: 50 }}
+                animate={inView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.8, delay: service.delay }}
+              >
+                <div className="relative p-8 bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-2xl hover:bg-white transition-all duration-500 group-hover:scale-105 group-hover:border-cyan-400/50 h-80 flex flex-col shadow-xl shadow-gray-900/5 hover:shadow-2xl hover:shadow-cyan-500/10">
+                  {/* Gradient Background */}
+                  <div className={`absolute inset-0 bg-gradient-to-br ${service.gradient} opacity-0 group-hover:opacity-5 rounded-2xl transition-opacity duration-500`} />
+                  
+                  {/* Icon */}
+                  <motion.div
+                    className={`inline-flex p-4 bg-gradient-to-br ${service.gradient} rounded-xl mb-6 group-hover:scale-110 transition-transform duration-300 self-start shadow-lg`}
+                    whileHover={{ rotate: 5 }}
+                  >
+                    <service.icon size={32} className="text-white" />
+                  </motion.div>
 
-                {/* Content */}
-                <div className="flex-1 text-right">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-4 group-hover:text-cyan-600 transition-colors duration-300 font-hebrew">
-                    {t(`services.items.${service.key}.title`)}
-                  </h3>
-                  <p className="text-gray-600 leading-relaxed group-hover:text-gray-700 transition-colors duration-300 font-hebrew">
-                    {t(`services.items.${service.key}.description`)}
-                  </p>
+                  {/* Content */}
+                  <div className="flex-1 text-right">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-4 group-hover:text-cyan-600 transition-colors duration-300 font-hebrew">
+                      {t(`services.items.${service.key}.title`)}
+                    </h3>
+                    <p className="text-gray-600 leading-relaxed group-hover:text-gray-700 transition-colors duration-300 font-hebrew">
+                      {t(`services.items.${service.key}.description`)}
+                    </p>
+                  </div>
+
+                  {/* Hover Effect */}
+                  <motion.div
+                    className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-400 to-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 rounded-b-2xl"
+                    layoutId={`service-border-${index}`}
+                  />
                 </div>
+              </motion.div>
+            ))}
+          </div>
 
-                {/* Hover Effect */}
-                <motion.div
-                  className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-400 to-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 rounded-b-2xl"
-                  layoutId={`service-border-${index}`}
+          {/* Mobile Carousel - Visible only on mobile */}
+          <div className="md:hidden relative">
+            {/* Navigation Arrows */}
+            <button
+              onClick={prevService}
+              className="absolute left-2 top-1/2 transform -translate-y-1/2 z-30 p-3 bg-white/90 hover:bg-white text-gray-800 rounded-full shadow-xl hover:shadow-2xl transition-all duration-200 hover:scale-110 border border-gray-200"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            
+            <button
+              onClick={nextService}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 z-30 p-3 bg-white/90 hover:bg-white text-gray-800 rounded-full shadow-xl hover:shadow-2xl transition-all duration-200 hover:scale-110 border border-gray-200"
+            >
+              <ChevronRight size={20} />
+            </button>
+
+            {/* Single Service Card */}
+            <div className="px-12">
+              <motion.div
+                key={currentIndex}
+                className="group relative"
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <div className="relative p-8 bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-2xl hover:bg-white transition-all duration-500 group-hover:scale-105 group-hover:border-cyan-400/50 h-80 flex flex-col shadow-xl shadow-gray-900/5 hover:shadow-2xl hover:shadow-cyan-500/10">
+                  {/* Gradient Background */}
+                  <div className={`absolute inset-0 bg-gradient-to-br ${services[currentIndex].gradient} opacity-0 group-hover:opacity-5 rounded-2xl transition-opacity duration-500`} />
+                  
+                  {/* Icon */}
+                  <motion.div
+                    className={`inline-flex p-4 bg-gradient-to-br ${services[currentIndex].gradient} rounded-xl mb-6 group-hover:scale-110 transition-transform duration-300 self-start shadow-lg`}
+                    whileHover={{ rotate: 5 }}
+                  >
+                    {React.createElement(services[currentIndex].icon, { size: 32, className: "text-white" })}
+                  </motion.div>
+
+                  {/* Content */}
+                  <div className="flex-1 text-right">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-4 group-hover:text-cyan-600 transition-colors duration-300 font-hebrew">
+                      {t(`services.items.${services[currentIndex].key}.title`)}
+                    </h3>
+                    <p className="text-gray-600 leading-relaxed group-hover:text-gray-700 transition-colors duration-300 font-hebrew">
+                      {t(`services.items.${services[currentIndex].key}.description`)}
+                    </p>
+                  </div>
+
+                  {/* Hover Effect */}
+                  <motion.div
+                    className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-400 to-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 rounded-b-2xl"
+                  />
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Dots Indicator for Mobile */}
+            <div className="flex justify-center mt-6 gap-2">
+              {services.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentIndex(index)}
+                  className={`w-3 h-3 rounded-full transition-all duration-200 ${
+                    index === currentIndex 
+                      ? 'bg-cyan-500 scale-125 shadow-lg' 
+                      : 'bg-gray-300 hover:bg-gray-400'
+                  }`}
                 />
-              </div>
-            </motion.div>
-          ))}
+              ))}
+            </div>
+
+            {/* Service Counter for Mobile */}
+            <div className="text-center mt-4">
+              <span className="text-gray-500 font-hebrew text-sm">
+                שירות {currentIndex + 1} מתוך {services.length}
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* Bottom CTA */}

@@ -260,7 +260,7 @@ function App() {
       </AnimatePresence>
 
       {/* Footer */}
-      <footer className="py-12 bg-gray-50 border-t border-gray-200 relative overflow-hidden">
+      {/* <footer className="py-12 bg-gray-50 border-t border-gray-200 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-transparent to-blue-600/5" />
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
@@ -289,7 +289,7 @@ function App() {
             </motion.div>
           </div>
         </div>
-      </footer>
+      </footer> */}
     </div>
   );
 }

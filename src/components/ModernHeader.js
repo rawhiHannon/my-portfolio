@@ -64,8 +64,16 @@ const ModernHeader = () => {
             className="flex items-center gap-3"
             whileHover={{ scale: 1.05 }}
           >
-            <div className="p-2 bg-gradient-to-r from-cyan-400 to-blue-600 rounded-lg">
-              <Calculator size={24} className="text-white" />
+            <div className="p-1 bg-gradient-to-r from-cyan-400 to-blue-600 rounded-lg">
+              <img
+                src="/logo.png"
+                alt="ניזאר סמרי"
+                className="w-12 h-12 object-cover"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'flex';
+                }}
+              />
             </div>
             <div className="text-right">
               <h1 className="text-xl font-bold text-white">נ.ס. שירותי הנדסה</h1>

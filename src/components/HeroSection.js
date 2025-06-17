@@ -83,8 +83,7 @@ const HeroSection = () => {
   };
 
   return (
-    <section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-100 pt-20 md:pt-0">
-      {/* Animated Background */}
+<section id="home" className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-100 pt-32 md:pt-0">      {/* Animated Background */}
       <canvas
         ref={canvasRef}
         className="absolute inset-0 z-0"
@@ -94,12 +93,12 @@ const HeroSection = () => {
       <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/15 via-transparent to-blue-600/15 z-1" />
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-gray-50/30 to-gray-100/50 z-2" />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 max-w-7xl mx-auto px-8 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           
-          {/* Left Side - Profile Card */}
+          {/* Left Side - Profile Card - Mobile: order-1, Desktop: order-1 */}
           <motion.div
-            className="relative order-2 lg:order-1"
+            className="relative order-1 lg:order-1"
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
@@ -165,12 +164,14 @@ const HeroSection = () => {
                 ].map((item, index) => (
                   <motion.div
                     key={index}
-                    className="flex items-center justify-between p-3 bg-gray-50/70 rounded-xl hover:bg-gray-100/70 transition-colors border border-gray-200/30"
+                    className="group"
                     whileHover={{ scale: 1.02 }}
                   >
-                    <span className="text-gray-700 text-sm font-hebrew">{item.text}</span>
-                    <div className="p-2 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg shadow-md">
-                      <item.icon size={16} className="text-white" />
+                    <div className="flex items-center justify-between p-3 bg-gray-50/70 rounded-xl hover:bg-gray-100/70 transition-colors border border-gray-200/30">
+                      <span className="text-gray-700 text-sm font-hebrew">{item.text}</span>
+                      <div className="p-2 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg shadow-md">
+                        <item.icon size={16} className="text-white" />
+                      </div>
                     </div>
                   </motion.div>
                 ))}
@@ -178,9 +179,9 @@ const HeroSection = () => {
             </div>
           </motion.div>
 
-          {/* Right Side - Main Content */}
+          {/* Right Side - Main Content - Mobile: order-2, Desktop: order-2 */}
           <motion.div
-            className="space-y-8 order-1 lg:order-2 text-center lg:text-right"
+            className="space-y-8 order-2 lg:order-2 text-center lg:text-right"
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}

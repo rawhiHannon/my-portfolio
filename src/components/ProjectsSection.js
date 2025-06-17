@@ -11,31 +11,34 @@ const ProjectsSection = () => {
   const [selectedProject, setSelectedProject] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  // Mobile carousel state
+  const [mobileCurrentIndex, setMobileCurrentIndex] = useState(0);
+
   // Project images mapping
   const getProjectImage = (id) => {
     const images = {
-      1: 'https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=800',
-      2: 'https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&w=800',
-      3: 'https://images.pexels.com/photos/162557/architecture-building-amsterdam-blue-162557.jpeg?auto=compress&cs=tinysrgb&w=800',
-      4: 'https://images.pexels.com/photos/1216589/pexels-photo-1216589.jpeg?auto=compress&cs=tinysrgb&w=800',
-      5: 'https://images.pexels.com/photos/325185/pexels-photo-325185.jpeg?auto=compress&cs=tinysrgb&w=800',
-      6: 'https://images.pexels.com/photos/236722/pexels-photo-236722.jpeg?auto=compress&cs=tinysrgb&w=800'
+      1: '/1.jpg',
+      2: '/2.jpg',
+      3: '/3.jpg',
+      4: '/4.jpg',
+      5: '/5.jpg',
+      6: '/6.jpg'
     };
     return images[id] || images[1];
   };
 
-  // Show 4 items at a time, navigate by changing the slice
+  // Desktop carousel - Show 4 items at a time, navigate by changing the slice
   const itemsPerPage = 4;
   const [currentPage, setCurrentPage] = useState(0);
   const totalPages = Math.ceil(portfolioData.projects.length / itemsPerPage);
   
-  // Get current projects to display
+  // Get current projects to display on desktop
   const getCurrentProjects = () => {
     const startIndex = currentPage * itemsPerPage;
     return portfolioData.projects.slice(startIndex, startIndex + itemsPerPage);
   };
 
-  // Navigation functions
+  // Desktop navigation functions
   const goToNextPage = () => {
     if (currentPage < totalPages - 1) {
       setCurrentPage(prev => prev + 1);
@@ -46,6 +49,15 @@ const ProjectsSection = () => {
     if (currentPage > 0) {
       setCurrentPage(prev => prev - 1);
     }
+  };
+
+  // Mobile navigation functions
+  const nextProject = () => {
+    setMobileCurrentIndex((prev) => (prev + 1) % portfolioData.projects.length);
+  };
+
+  const prevProject = () => {
+    setMobileCurrentIndex((prev) => (prev - 1 + portfolioData.projects.length) % portfolioData.projects.length);
   };
 
   return (
@@ -87,8 +99,8 @@ const ProjectsSection = () => {
           </motion.p>
         </motion.div>
 
-        {/* Carousel */}
-        <div className="relative">
+        {/* Desktop Carousel - Hidden on mobile */}
+        <div className="relative hidden md:block">
           {/* Navigation Arrows - Show based on current page */}
           {currentPage > 0 && (
             <button
@@ -212,6 +224,123 @@ const ProjectsSection = () => {
           </div>
         </div>
 
+        {/* Mobile Carousel - Visible only on mobile */}
+        <div className="md:hidden relative">
+          {/* Navigation Arrows */}
+          <button
+            onClick={prevProject}
+            className="absolute left-2 top-1/2 transform -translate-y-1/2 z-30 p-3 bg-white/90 hover:bg-white text-gray-800 rounded-full shadow-xl hover:shadow-2xl transition-all duration-200 hover:scale-110 border border-gray-200"
+          >
+            <ChevronLeft size={20} />
+          </button>
+          
+          <button
+            onClick={nextProject}
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 z-30 p-3 bg-white/90 hover:bg-white text-gray-800 rounded-full shadow-xl hover:shadow-2xl transition-all duration-200 hover:scale-110 border border-gray-200"
+          >
+            <ChevronRight size={20} />
+          </button>
+
+          {/* Single Project Card */}
+          <div className="px-12">
+            <motion.div
+              key={mobileCurrentIndex}
+              className="cursor-pointer group transition-all duration-200"
+              onClick={() => setSelectedProject(portfolioData.projects[mobileCurrentIndex])}
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <div className="relative overflow-hidden rounded-2xl bg-white/90 backdrop-blur-xl border border-gray-200/50 hover:border-cyan-400/50 transition-all duration-200 h-96 flex flex-col shadow-xl shadow-gray-900/5 hover:shadow-2xl hover:shadow-cyan-500/10">
+                {/* Project Image */}
+                <div className="relative h-48 overflow-hidden">
+                  <img
+                    src={getProjectImage(portfolioData.projects[mobileCurrentIndex].id)}
+                    alt={portfolioData.projects[mobileCurrentIndex].title}
+                    className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-110"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'flex';
+                    }}
+                  />
+                  {/* Fallback */}
+                  <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 hidden items-center justify-center text-6xl">
+                    {(() => {
+                      const icons = { 1: '🏢', 2: '🏠', 3: '🔧', 4: '🏗️', 5: '🌉', 6: '⚡' };
+                      return icons[portfolioData.projects[mobileCurrentIndex].id] || '🏗️';
+                    })()}
+                  </div>
+                  
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                  
+                  {/* Hover Overlay */}
+                  <div className="absolute inset-0 bg-cyan-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                    <div className="flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur-md rounded-full text-gray-800 font-medium font-hebrew shadow-lg">
+                      <ExternalLink size={18} />
+                      {t('projects.viewProject')}
+                    </div>
+                  </div>
+
+                  {/* Category Badge */}
+                  <div className="absolute top-4 right-4 px-3 py-1 bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm font-semibold rounded-full font-hebrew shadow-md">
+                    {portfolioData.projects[mobileCurrentIndex].category}
+                  </div>
+                </div>
+
+                {/* Project Content */}
+                <div className="p-6 flex-1 flex flex-col bg-white">
+                  <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-cyan-600 transition-colors duration-200 text-right font-hebrew">
+                    {portfolioData.projects[mobileCurrentIndex].title}
+                  </h3>
+                  
+                  <p className="text-gray-600 mb-4 text-right font-hebrew flex-1 line-clamp-3">
+                    {portfolioData.projects[mobileCurrentIndex].description}
+                  </p>
+
+                  {/* Technologies */}
+                  <div className="flex flex-wrap gap-2 justify-end">
+                    {portfolioData.projects[mobileCurrentIndex].technologies.slice(0, 2).map((tech, techIndex) => (
+                      <span
+                        key={techIndex}
+                        className="px-3 py-1 bg-cyan-50 text-cyan-700 text-xs font-medium rounded-full border border-cyan-200 font-hebrew"
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                    {portfolioData.projects[mobileCurrentIndex].technologies.length > 2 && (
+                      <span className="px-3 py-1 text-gray-500 text-xs font-hebrew">
+                        +{portfolioData.projects[mobileCurrentIndex].technologies.length - 2}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Dots Indicator for Mobile */}
+          <div className="flex justify-center mt-6 gap-2">
+            {portfolioData.projects.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setMobileCurrentIndex(index)}
+                className={`w-3 h-3 rounded-full transition-all duration-200 ${
+                  index === mobileCurrentIndex 
+                    ? 'bg-cyan-500 scale-125 shadow-lg' 
+                    : 'bg-gray-300 hover:bg-gray-400'
+                }`}
+              />
+            ))}
+          </div>
+
+          {/* Project Counter for Mobile */}
+          <div className="text-center mt-4">
+            <span className="text-gray-500 font-hebrew text-sm">
+              פרויקט {mobileCurrentIndex + 1} מתוך {portfolioData.projects.length}
+            </span>
+          </div>
+        </div>
+
         {/* Project Modal */}
         <AnimatePresence>
           {selectedProject && (
@@ -235,12 +364,12 @@ const ProjectsSection = () => {
                     <img
                       src={(() => {
                         const images = {
-                          1: 'https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=1200',
-                          2: 'https://images.pexels.com/photos/106399/pexels-photo-106399.jpeg?auto=compress&cs=tinysrgb&w=1200',
-                          3: 'https://images.pexels.com/photos/162557/architecture-building-amsterdam-blue-162557.jpeg?auto=compress&cs=tinysrgb&w=1200',
-                          4: 'https://images.pexels.com/photos/1216589/pexels-photo-1216589.jpeg?auto=compress&cs=tinysrgb&w=1200',
-                          5: 'https://images.pexels.com/photos/325185/pexels-photo-325185.jpeg?auto=compress&cs=tinysrgb&w=1200',
-                          6: 'https://images.pexels.com/photos/236722/pexels-photo-236722.jpeg?auto=compress&cs=tinysrgb&w=1200'
+                          1: '/1.jpg',
+                          2: '/2.jpg',
+                          3: '/3.jpg',
+                          4: '/4.jpg',
+                          5: '/5.jpg',
+                          6: '/6.jpg'
                         };
                         return images[selectedProject.id] || images[1];
                       })()}
