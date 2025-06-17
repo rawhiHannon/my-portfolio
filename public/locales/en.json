@@ -1,0 +1,65 @@
+{
+    "navigation": {
+      "home": "Home",
+      "services": "Services", 
+      "projects": "Projects",
+      "contact": "Contact"
+    },
+    "hero": {
+      "greeting": "Precision Engineering",
+      "name": "Geodetic Solutions",
+      "title": "Licensed Geodetic Engineer",
+      "subtitle": "Surveying & Personal Projects",
+      "description": "Delivering precise land surveying, mapping, and geodetic solutions with cutting-edge technology and professional expertise.",
+      "cta": "View Projects",
+      "contact": "Get Quote"
+    },
+    "services": {
+      "title": "Professional Services",
+      "subtitle": "Comprehensive geodetic engineering solutions",
+      "items": {
+        "surveying": {
+          "title": "Land Surveying",
+          "description": "Precise boundary surveys, topographic mapping, and construction layout with GPS and total station technology."
+        },
+        "mapping": {
+          "title": "Digital Mapping",
+          "description": "High-accuracy GIS mapping, aerial photogrammetry, and 3D terrain modeling for engineering projects."
+        },
+        "construction": {
+          "title": "Construction Support",
+          "description": "Site preparation, foundation layout, elevation certificates, and as-built surveys for construction projects."
+        },
+        "analysis": {
+          "title": "Spatial Analysis",
+          "description": "Advanced spatial data analysis, coordinate transformations, and geodetic network adjustments."
+        }
+      }
+    },
+    "projects": {
+      "title": "Featured Projects",
+      "subtitle": "Real-world geodetic engineering solutions",
+      "viewProject": "View Details",
+      "technologies": "Technologies Used"
+    },
+    "contact": {
+      "title": "Start Your Project",
+      "subtitle": "Get professional geodetic engineering consultation",
+      "form": {
+        "name": "Full Name",
+        "email": "Email Address", 
+        "phone": "Phone Number",
+        "project": "Project Type",
+        "message": "Project Details",
+        "send": "Send Message",
+        "sending": "Sending..."
+      },
+      "info": {
+        "phone": "Phone",
+        "email": "Email",
+        "location": "Location",
+        "response": "Response Time",
+        "responseText": "Typically respond within 24 hours"
+      }
+    }
+  }
