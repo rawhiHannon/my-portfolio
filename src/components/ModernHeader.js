@@ -48,11 +48,11 @@ const ModernHeader = () => {
             className="flex items-center gap-3"
             whileHover={{ scale: 1.05 }}
           >
-            <div className="p-1 bg-gradient-to-r from-cyan-400 to-blue-600 rounded-lg">
+            <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-cyan-400">
               <img
                 src="/logo.png"
                 alt="ניזאר סמרי"
-                className="w-12 h-12 object-cover"
+                className="w-full h-full object-cover"
                 onError={(e) => {
                   e.target.style.display = 'none';
                   e.target.nextSibling.style.display = 'flex';
@@ -64,7 +64,7 @@ const ModernHeader = () => {
               <p className="text-xs text-cyan-400">ניזאר סמרי - מהנדס אזרחי</p>
             </div>
           </motion.div>
-
+  
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
             {navigation.map((item) => (
@@ -85,7 +85,7 @@ const ModernHeader = () => {
               </motion.button>
             ))}
           </nav>
-
+  
           {/* Mobile Menu Button */}
           <div className="md:hidden">
             <motion.button
@@ -97,7 +97,7 @@ const ModernHeader = () => {
             </motion.button>
           </div>
         </div>
-
+  
         {/* Mobile Navigation */}
         <AnimatePresence>
           {isMenuOpen && (
@@ -130,6 +130,7 @@ const ModernHeader = () => {
       </div>
     </motion.header>
   );
+  
 };
 
 export default ModernHeader;
