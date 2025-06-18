@@ -99,30 +99,33 @@ const ContactSection = () => {
   }
 
   return (
-    <section id="contact" className="py-24 md:py-24 pt-32 md:pt-24 bg-gradient-to-b from-gray-50 via-white to-gray-100 relative overflow-hidden">
+    <section
+      id="contact"
+      className="py-24 md:py-24 pt-40 md:pt-32 bg-gradient-to-b from-gray-50 via-white to-gray-100 relative overflow-hidden"
+    >
       {/* Background Elements */}
       <div className="absolute inset-0">
-      <div className="absolute top-1/4 left-1/3 w-96 h-96 bg-cyan-500/15 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute bottom-1/4 right-1/3 w-96 h-96 bg-blue-500/15 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute top-1/4 left-1/3 w-96 h-96 bg-cyan-500/15 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/3 w-96 h-96 bg-blue-500/15 rounded-full blur-3xl animate-pulse" />
       </div>
-
+  
       <div ref={ref} className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
-          className="text-center mb-20"
+          className="text-center mb-12"
           initial={{ opacity: 0, y: 50 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8 }}
         >
-          <motion.h2 
-            className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 font-hebrew"
+          <motion.h2
+            className="text-4xl md:text-6xl font-bold text-gray-900 mb-2 font-hebrew"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={inView ? { opacity: 1, scale: 1 } : {}}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
             {t('contact.title')}
           </motion.h2>
-          <motion.p 
+          <motion.p
             className="text-xl text-gray-600 max-w-3xl mx-auto font-hebrew"
             initial={{ opacity: 0 }}
             animate={inView ? { opacity: 1 } : {}}
@@ -131,8 +134,8 @@ const ContactSection = () => {
             {t('contact.subtitle')}
           </motion.p>
         </motion.div>
-
-        <div className="grid lg:grid-cols-2 gap-16">
+  
+        <div className="grid lg:grid-cols-2 gap-12">
           {/* Contact Info */}
           <motion.div
             className="space-y-8"
@@ -150,23 +153,38 @@ const ContactSection = () => {
                   transition={{ duration: 0.6, delay: 0.8 + index * 0.1 }}
                 >
                   {info.href ? (
-                    <a href={info.href} className="flex items-start gap-4 p-6 bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-2xl hover:bg-white hover:border-cyan-400/50 transition-all duration-300 group-hover:scale-105 shadow-xl shadow-gray-900/5 hover:shadow-2xl hover:shadow-cyan-500/10">
-                      <div className={`p-3 bg-gradient-to-r ${info.gradient} rounded-xl group-hover:scale-110 transition-transform duration-300 shadow-md`}>
+                    <a
+                      href={info.href}
+                      className="flex items-start gap-4 p-6 bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-2xl hover:bg-white hover:border-cyan-400/50 transition-all duration-300 group-hover:scale-105 shadow-xl shadow-gray-900/5 hover:shadow-2xl hover:shadow-cyan-500/10"
+                    >
+                      <div
+                        className={`p-3 bg-gradient-to-r ${info.gradient} rounded-xl group-hover:scale-110 transition-transform duration-300 shadow-md`}
+                      >
                         <info.icon size={24} className="text-white" />
                       </div>
                       <div className="text-right">
-                        <h4 className="text-gray-900 font-semibold mb-1 font-hebrew">{info.label}</h4>
-                        <p className="text-gray-600 group-hover:text-cyan-600 transition-colors duration-300 font-hebrew">{info.value}</p>
+                        <h4 className="text-gray-900 font-semibold mb-1 font-hebrew">
+                          {info.label}
+                        </h4>
+                        <p className="text-gray-600 group-hover:text-cyan-600 transition-colors duration-300 font-hebrew">
+                          {info.value}
+                        </p>
                       </div>
                     </a>
                   ) : (
                     <div className="flex items-start gap-4 p-6 bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-2xl shadow-xl shadow-gray-900/5">
-                      <div className={`p-3 bg-gradient-to-r ${info.gradient} rounded-xl shadow-md`}>
+                      <div
+                        className={`p-3 bg-gradient-to-r ${info.gradient} rounded-xl shadow-md`}
+                      >
                         <info.icon size={24} className="text-white" />
                       </div>
                       <div className="text-right">
-                        <h4 className="text-gray-900 font-semibold mb-1 font-hebrew">{info.label}</h4>
-                        <p className="text-gray-600 font-hebrew">{info.value}</p>
+                        <h4 className="text-gray-900 font-semibold mb-1 font-hebrew">
+                          {info.label}
+                        </h4>
+                        <p className="text-gray-600 font-hebrew">
+                          {info.value}
+                        </p>
                       </div>
                     </div>
                   )}
@@ -174,15 +192,19 @@ const ContactSection = () => {
               ))}
             </div>
           </motion.div>
-
+  
           {/* Contact Form */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={inView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.8 }}
           >
-            <form onSubmit={handleSubmit} className="space-y-6 p-8 bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-3xl shadow-2xl">
+            <form
+              onSubmit={handleSubmit}
+              className="space-y-6 p-8 bg-white/90 backdrop-blur-xl border border-gray-200/50 rounded-3xl shadow-2xl"
+            >
               <div className="grid md:grid-cols-2 gap-6">
+                {/* Name */}
                 <div>
                   <label className="block text-gray-900 font-medium mb-2 text-right font-hebrew">
                     {t('contact.form.name')} *
@@ -197,7 +219,7 @@ const ContactSection = () => {
                     placeholder={t('contact.form.name')}
                   />
                 </div>
-
+                {/* Email */}
                 <div>
                   <label className="block text-gray-900 font-medium mb-2 text-right font-hebrew">
                     {t('contact.form.email')} *
@@ -213,8 +235,9 @@ const ContactSection = () => {
                   />
                 </div>
               </div>
-
+  
               <div className="grid md:grid-cols-2 gap-6">
+                {/* Phone */}
                 <div>
                   <label className="block text-gray-900 font-medium mb-2 text-right font-hebrew">
                     {t('contact.form.phone')}
@@ -228,7 +251,7 @@ const ContactSection = () => {
                     placeholder={t('contact.form.phone')}
                   />
                 </div>
-
+                {/* Project Type */}
                 <div>
                   <label className="block text-gray-900 font-medium mb-2 text-right font-hebrew">
                     {t('contact.form.project')}
@@ -239,18 +262,35 @@ const ContactSection = () => {
                     onChange={handleChange}
                     className="w-full px-4 py-3 bg-gray-50/70 border border-gray-300/50 rounded-xl text-gray-900 focus:outline-none focus:border-cyan-500 focus:bg-white transition-all duration-300 font-hebrew"
                   >
-                    <option value="" className="bg-white">בחר סוג פרויקט</option>
-                    <option value="residential" className="bg-white">בנייני מגורים</option>
-                    <option value="infrastructure" className="bg-white">תשתיות</option>
-                    <option value="renovation" className="bg-white">שיפוצים</option>
-                    <option value="tama" className="bg-white">פרויקטי תמ"א</option>
-                    <option value="industrial" className="bg-white">פרויקטים תעשייתיים</option>
-                    <option value="consultation" className="bg-white">ייעוץ והערכה</option>
-                    <option value="other" className="bg-white">אחר</option>
+                    <option value="" className="bg-white">
+                      בחר סוג פרויקט
+                    </option>
+                    <option value="residential" className="bg-white">
+                      בנייני מגורים
+                    </option>
+                    <option value="infrastructure" className="bg-white">
+                      תשתיות
+                    </option>
+                    <option value="renovation" className="bg-white">
+                      שיפוצים
+                    </option>
+                    <option value="tama" className="bg-white">
+                      פרויקטי תמ"א
+                    </option>
+                    <option value="industrial" className="bg-white">
+                      פרויקטים תעשייתיים
+                    </option>
+                    <option value="consultation" className="bg-white">
+                      ייעוץ והערכה
+                    </option>
+                    <option value="other" className="bg-white">
+                      אחר
+                    </option>
                   </select>
                 </div>
               </div>
-
+  
+              {/* Message */}
               <div>
                 <label className="block text-gray-900 font-medium mb-2 text-right font-hebrew">
                   {t('contact.form.message')} *
@@ -265,7 +305,8 @@ const ContactSection = () => {
                   placeholder={t('contact.form.message')}
                 />
               </div>
-
+  
+              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={isSubmitting}
@@ -289,6 +330,7 @@ const ContactSection = () => {
       </div>
     </section>
   );
+  
 };
 
 export default ContactSection;
