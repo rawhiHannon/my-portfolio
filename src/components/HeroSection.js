@@ -110,91 +110,97 @@ const HeroSection = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <div className="bg-white backdrop-blur-xl border border-gray-200 rounded-2xl p-8 text-center shadow-xl shadow-gray-500/10 max-w-lg mx-auto">
-              {/* Profile Picture */}
-              <motion.div
-                className="relative mx-auto mb-5"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.4 }}
-              >
-                <div className="w-36 h-36 mx-auto relative">
-                  <div className="w-full h-full bg-gray-100 rounded-full border-2 border-gray-200 flex items-center justify-center overflow-hidden shadow-md">
-                    <img 
-                      src="/nizar.jpg"
-                      alt="ניזאר סמרי"
-                      className="w-full h-full object-cover rounded-full"
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.nextSibling.style.display = 'flex';
-                      }}
-                    />
-                    <div className="w-full h-full bg-gray-300 rounded-full hidden items-center justify-center">
-                      <User size={54} className="text-gray-600" />
+            <div className="bg-white/80 backdrop-blur-md border border-white/20 rounded-3xl p-7 text-center shadow-[0_8px_32px_rgba(0,0,0,0.12)] shadow-cyan-500/8 max-w-md mx-auto relative overflow-hidden">
+              
+              {/* Subtle gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-b from-white/50 to-transparent pointer-events-none" />
+              
+              <div className="relative z-10">
+                {/* Profile Picture */}
+                <motion.div
+                  className="relative mx-auto mb-4"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <div className="w-32 h-32 mx-auto relative">
+                    <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 rounded-full border border-white/50 flex items-center justify-center overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.08)]">
+                      <img 
+                        src="/nizar.jpg"
+                        alt="ניזאר סמרי"
+                        className="w-full h-full object-cover rounded-full"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.nextSibling.style.display = 'flex';
+                        }}
+                      />
+                      <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 rounded-full hidden items-center justify-center">
+                        <User size={44} className="text-gray-500" />
+                      </div>
+                    </div>
+                    <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-white border-2 border-white rounded-full flex items-center justify-center shadow-[0_2px_8px_rgba(0,0,0,0.15)]">
+                      <div className="w-3 h-3 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full"></div>
                     </div>
                   </div>
-                  <div className="absolute bottom-1 right-1 w-8 h-8 bg-white border-2 border-white rounded-full flex items-center justify-center shadow-sm">
-                    <div className="w-4 h-4 bg-green-500 rounded-full"></div>
-                  </div>
-                </div>
-              </motion.div>
+                </motion.div>
 
-              {/* Professional Info */}
-              <motion.div
-                className="space-y-4 mb-7"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.6 }}
-              >
-                <h1 className="text-2xl font-bold text-gray-900 font-hebrew">
-                  {portfolioData.personal.name}
-                </h1>
-                <p className="text-gray-600 font-medium text-lg font-hebrew">
-                  {portfolioData.personal.title}
-                </p>
-                <p className="text-gray-500 text-base font-hebrew">
-                  {portfolioData.personal.company}
-                </p>
-              </motion.div>
+                {/* Professional Info */}
+                <motion.div
+                  className="space-y-3 mb-6"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.6 }}
+                >
+                  <h1 className="text-xl font-bold text-gray-900 font-hebrew">
+                    {portfolioData.personal.name}
+                  </h1>
+                  <p className="text-gray-600 font-medium text-base font-hebrew">
+                    {portfolioData.personal.title}
+                  </p>
+                  <p className="text-gray-500 text-sm font-hebrew">
+                    {portfolioData.personal.company}
+                  </p>
+                </motion.div>
 
-              {/* Contact Info */}
-              <motion.div 
-                className="space-y-3 relative z-10"
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.9 }}
-              >
-                {[
-                  { icon: Phone, text: portfolioData.personal.phone, href: `tel:${portfolioData.personal.phone}`, color: 'from-green-400 to-emerald-500' },
-                  { icon: Mail, text: portfolioData.personal.email, href: `mailto:${portfolioData.personal.email}`, color: 'from-blue-400 to-cyan-500' },
-                  { icon: MapPin, text: portfolioData.personal.location, color: 'from-red-400 to-pink-500' }
-                ].map((item, index) => (
-                  <motion.div
-                    key={index}
-                    className="group/contact"
-                    whileHover={{ scale: 1.02 }}
-                    initial={{ opacity: 0, x: 50 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 1 + index * 0.1 }}
-                  >
-                    {item.href ? (
-                      <a href={item.href} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all duration-300 border border-gray-100 group-hover/contact:border-gray-200">
-                        <span className="text-gray-600 text-sm font-hebrew group-hover/contact:text-gray-900 transition-colors">{item.text}</span>
-                        <div className={`p-2.5 bg-gradient-to-r ${item.color} rounded-lg shadow-sm group-hover/contact:shadow-md transition-all`}>
-                          <item.icon size={16} className="text-white" />
+                {/* Contact Info */}
+                <motion.div 
+                  className="space-y-3"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.9 }}
+                >
+                  {[
+                    { icon: Phone, text: portfolioData.personal.phone, href: `tel:${portfolioData.personal.phone}`, color: 'from-green-400 to-emerald-500' },
+                    { icon: Mail, text: portfolioData.personal.email, href: `mailto:${portfolioData.personal.email}`, color: 'from-blue-400 to-cyan-500' },
+                    { icon: MapPin, text: portfolioData.personal.location, color: 'from-red-400 to-pink-500' }
+                  ].map((item, index) => (
+                    <motion.div
+                      key={index}
+                      className="group/contact"
+                      whileHover={{ scale: 1.02 }}
+                      initial={{ opacity: 0, x: 30 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 1 + index * 0.1 }}
+                    >
+                      {item.href ? (
+                        <a href={item.href} className="flex items-center justify-between p-3 bg-white/60 backdrop-blur-sm rounded-xl hover:bg-white/80 transition-all duration-300 border border-white/40 group-hover/contact:border-white/60 shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.12)]">
+                          <span className="text-gray-600 text-sm font-hebrew group-hover/contact:text-gray-900 transition-colors">{item.text}</span>
+                          <div className={`p-2.5 bg-gradient-to-r ${item.color} rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.15)] group-hover/contact:shadow-[0_4px_12px_rgba(0,0,0,0.2)] transition-all`}>
+                            <item.icon size={16} className="text-white" />
+                          </div>
+                        </a>
+                      ) : (
+                        <div className="flex items-center justify-between p-3 bg-white/60 backdrop-blur-sm rounded-xl border border-white/40 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+                          <span className="text-gray-600 text-sm font-hebrew">{item.text}</span>
+                          <div className={`p-2.5 bg-gradient-to-r ${item.color} rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.15)]`}>
+                            <item.icon size={16} className="text-white" />
+                          </div>
                         </div>
-                      </a>
-                    ) : (
-                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
-                        <span className="text-gray-600 text-sm font-hebrew">{item.text}</span>
-                        <div className={`p-2.5 bg-gradient-to-r ${item.color} rounded-lg shadow-sm`}>
-                          <item.icon size={16} className="text-white" />
-                        </div>
-                      </div>
-                    )}
-                  </motion.div>
-                ))}
-              </motion.div>
+                      )}
+                    </motion.div>
+                  ))}
+                </motion.div>
+              </div>
             </div>
           </motion.div>
 
