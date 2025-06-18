@@ -26,11 +26,12 @@ function App() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [currentSection, setCurrentSection] = useState(0);
   const [isScrolling, setIsScrolling] = useState(false);
-  const [sectionIntersections, setSectionIntersections] = useState({});
+  const [sectionPositions, setSectionPositions] = useState({});
   
   const sections = ['home', 'services', 'projects', 'contact'];
   const observerRef = useRef(null);
   const scrollTimeoutRef = useRef(null);
+  const lastUpdateTimeRef = useRef(0);
 
   // Function to navigate to a specific section
   const navigateToSection = (sectionName) => {
@@ -63,27 +64,144 @@ function App() {
     sections
   };
 
-  // Setup intersection observer for sections
+  // Function to calculate section positions
+  const updateSectionPositions = () => {
+    const positions = {};
+    sections.forEach(sectionId => {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        const rect = element.getBoundingClientRect();
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        positions[sectionId] = {
+          top: rect.top + scrollTop,
+          bottom: rect.bottom + scrollTop,
+          height: rect.height,
+          center: rect.top + scrollTop + rect.height / 2
+        };
+      }
+    });
+    setSectionPositions(positions);
+    return positions;
+  };
+
+  // Function to determine current section based on scroll position
+  const getCurrentSectionFromScroll = (positions = sectionPositions) => {
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const windowHeight = window.innerHeight;
+    const viewportCenter = scrollTop + windowHeight / 2;
+    
+    // Find the section whose center is closest to the viewport center
+    let closestSection = 0;
+    let closestDistance = Infinity;
+    
+    sections.forEach((sectionId, index) => {
+      const position = positions[sectionId];
+      if (position) {
+        // Calculate distance from viewport center to section center
+        const distance = Math.abs(viewportCenter - position.center);
+        
+        // Also consider if the section is currently visible
+        const isVisible = position.top <= scrollTop + windowHeight && 
+                          position.bottom >= scrollTop;
+        
+        // Prioritize visible sections and closer distances
+        const adjustedDistance = isVisible ? distance : distance + 10000;
+        
+        if (adjustedDistance < closestDistance) {
+          closestDistance = adjustedDistance;
+          closestSection = index;
+        }
+      }
+    });
+    
+    // Special case: if we're at the very bottom of the page, show last section
+    const documentHeight = document.documentElement.scrollHeight;
+    const isAtBottom = scrollTop + windowHeight >= documentHeight - 50;
+    if (isAtBottom) {
+      closestSection = sections.length - 1;
+    }
+    
+    // Special case: if we're at the very top, show first section
+    if (scrollTop <= 50) {
+      closestSection = 0;
+    }
+    
+    return closestSection;
+  };
+
+  // Function to check if user can snap to next/previous section
+  const canSnapToSection = (targetSectionIndex, scrollDirection) => {
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const windowHeight = window.innerHeight;
+    const currentSectionId = sections[currentSection];
+    const currentPosition = sectionPositions[currentSectionId];
+    
+    if (!currentPosition) return false;
+
+    if (scrollDirection > 0) {
+      // Scrolling down - check if we've scrolled through most of current section
+      // and at least 20% of next section is visible
+      const currentSectionProgress = (scrollTop - currentPosition.top) / Math.max(currentPosition.height - windowHeight, 1);
+      const nextSectionId = sections[targetSectionIndex];
+      const nextPosition = sectionPositions[nextSectionId];
+      
+      if (!nextPosition) return false;
+      
+      // Calculate how much of the next section is visible
+      const nextSectionVisibleHeight = Math.max(0, Math.min(nextPosition.bottom, scrollTop + windowHeight) - Math.max(nextPosition.top, scrollTop));
+      const nextSectionVisibility = nextSectionVisibleHeight / nextPosition.height;
+      
+      // Allow snap if:
+      // 1. Current section is taller than viewport AND we've scrolled through most of it (80%+)
+      // 2. OR current section fits in viewport AND next section is 20%+ visible
+      // 3. OR we've scrolled past the current section entirely
+      if (currentPosition.height > windowHeight) {
+        return currentSectionProgress >= 0.8 && nextSectionVisibility >= 0.2;
+      } else {
+        return nextSectionVisibility >= 0.2 || scrollTop >= currentPosition.bottom - windowHeight * 0.3;
+      }
+    } else {
+      // Scrolling up - check if we're near the top of current section
+      // or if previous section is significantly visible
+      const prevSectionId = sections[targetSectionIndex];
+      const prevPosition = sectionPositions[prevSectionId];
+      
+      if (!prevPosition) return false;
+      
+      // Calculate how much of the previous section is visible
+      const prevSectionVisibleHeight = Math.max(0, Math.min(prevPosition.bottom, scrollTop + windowHeight) - Math.max(prevPosition.top, scrollTop));
+      const prevSectionVisibility = prevSectionVisibleHeight / prevPosition.height;
+      
+      // Allow snap if:
+      // 1. We're in the top 30% of current section
+      // 2. OR previous section is 30%+ visible
+      const currentSectionFromTop = (scrollTop - currentPosition.top) / currentPosition.height;
+      return currentSectionFromTop <= 0.3 || prevSectionVisibility >= 0.3;
+    }
+  };
+
+  // Setup intersection observer for better performance
   useEffect(() => {
     const observerOptions = {
       root: null,
-      rootMargin: '0px',
-      threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+      rootMargin: '-10% 0px -10% 0px', // Trigger when section is 10% into viewport
+      threshold: [0, 0.25, 0.5, 0.75, 1.0]
     };
 
     observerRef.current = new IntersectionObserver((entries) => {
-      const intersections = {};
-      
-      entries.forEach((entry) => {
-        const sectionId = entry.target.id;
-        intersections[sectionId] = {
-          isIntersecting: entry.isIntersecting,
-          intersectionRatio: entry.intersectionRatio,
-          boundingRect: entry.boundingClientRect
-        };
-      });
-      
-      setSectionIntersections(prev => ({ ...prev, ...intersections }));
+      // Update section positions when elements come into view
+      const now = Date.now();
+      if (now - lastUpdateTimeRef.current > 100) { // Throttle updates
+        lastUpdateTimeRef.current = now;
+        requestAnimationFrame(() => {
+          const positions = updateSectionPositions();
+          const newCurrentSection = getCurrentSectionFromScroll(positions);
+          
+          if (newCurrentSection !== currentSection && !isScrolling) {
+            setCurrentSection(newCurrentSection);
+          }
+        });
+      }
     }, observerOptions);
 
     // Observe all sections
@@ -99,10 +217,15 @@ function App() {
         observerRef.current.disconnect();
       }
     };
-  }, [sections]);
+  }, [sections, currentSection, isScrolling]);
 
   useEffect(() => {
     setIsLoaded(true);
+
+    // Initial setup
+    setTimeout(() => {
+      updateSectionPositions();
+    }, 100);
 
     let lastScrollTime = 0;
     const scrollCooldown = 1000; // 1 second cooldown between snaps
@@ -116,30 +239,15 @@ function App() {
         clearTimeout(scrollTimeoutRef.current);
       }
 
-      // Set timeout to handle potential section changes
+      // Throttled section update
       scrollTimeoutRef.current = setTimeout(() => {
         if (isScrolling) return;
 
-        // Find the section that should be considered "current" based on visibility
-        let newCurrentSection = currentSection;
-        let maxVisibilityRatio = 0;
-
-        sections.forEach((sectionId, index) => {
-          const intersection = sectionIntersections[sectionId];
-          if (intersection && intersection.isIntersecting) {
-            // Prioritize sections that are more than 50% visible
-            if (intersection.intersectionRatio > 0.5 && intersection.intersectionRatio > maxVisibilityRatio) {
-              maxVisibilityRatio = intersection.intersectionRatio;
-              newCurrentSection = index;
-            }
-          }
-        });
-
-        // Update current section if it changed
+        const newCurrentSection = getCurrentSectionFromScroll();
         if (newCurrentSection !== currentSection) {
           setCurrentSection(newCurrentSection);
         }
-      }, 100);
+      }, 50); // Reduced timeout for more responsive updates
     };
 
     // Handle wheel events for section snapping
@@ -165,41 +273,18 @@ function App() {
         return;
       }
 
-      // Check if we should snap to next/previous section
-      const currentSectionId = sections[currentSection];
-      const currentIntersection = sectionIntersections[currentSectionId];
-      
-      if (!currentIntersection) return;
-
-      let shouldSnap = false;
+      // Determine target section based on scroll direction
       let targetSectionIndex = currentSection;
+      let shouldSnap = false;
 
-      if (delta > 0) {
+      if (delta > 0 && currentSection < sections.length - 1) {
         // Scrolling down
-        const nextSectionIndex = currentSection + 1;
-        if (nextSectionIndex < sections.length) {
-          const nextSectionId = sections[nextSectionIndex];
-          const nextIntersection = sectionIntersections[nextSectionId];
-          
-          // Snap if next section is 20% or more visible (changed from 30%)
-          if (nextIntersection && nextIntersection.intersectionRatio >= 0.2) {
-            shouldSnap = true;
-            targetSectionIndex = nextSectionIndex;
-          }
-        }
-      } else {
+        targetSectionIndex = currentSection + 1;
+        shouldSnap = canSnapToSection(targetSectionIndex, delta);
+      } else if (delta < 0 && currentSection > 0) {
         // Scrolling up
-        const prevSectionIndex = currentSection - 1;
-        if (prevSectionIndex >= 0) {
-          const prevSectionId = sections[prevSectionIndex];
-          const prevIntersection = sectionIntersections[prevSectionId];
-          
-          // Snap if current section is less than 70% visible (meaning we've scrolled up significantly)
-          if (currentIntersection.intersectionRatio < 0.7) {
-            shouldSnap = true;
-            targetSectionIndex = prevSectionIndex;
-          }
-        }
+        targetSectionIndex = currentSection - 1;
+        shouldSnap = canSnapToSection(targetSectionIndex, delta);
       }
 
       // Perform the snap if conditions are met
@@ -225,19 +310,26 @@ function App() {
       }
     };
 
+    const handleResize = () => {
+      // Update positions on resize
+      setTimeout(updateSectionPositions, 100);
+    };
+
     // Add event listeners
     window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('wheel', handleWheel, { passive: false });
+    window.addEventListener('resize', handleResize, { passive: true });
 
     // Cleanup
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('resize', handleResize);
       if (scrollTimeoutRef.current) {
         clearTimeout(scrollTimeoutRef.current);
       }
     };
-  }, [isScrolling, currentSection, sections, sectionIntersections]);
+  }, [isScrolling, currentSection, sections, sectionPositions]);
 
   const scrollToTop = () => {
     navigateToSection('home');
