@@ -47,7 +47,7 @@ const ServicesSection = () => {
   return (
     <section
       id="services"
-      className="relative min-h-screen py-24 md:py-24 pt-40 md:pt-32 bg-gradient-to-b from-white via-gray-50 to-white overflow-hidden"
+      className="relative min-h-screen py-24 md:py-24 pt-32 md:pt-32 bg-gradient-to-b from-white via-gray-50 to-white overflow-hidden"
     >
       {/* Background Elements - More visible and full height */}
       <div className="absolute inset-0 w-full h-full">

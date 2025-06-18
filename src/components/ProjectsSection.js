@@ -61,10 +61,10 @@ const ProjectsSection = () => {
   };
 
   return (
-      <section
-        id="projects"
-        className="relative min-h-screen py-24 md:py-24 pt-40 md:pt-32 bg-gradient-to-b from-gray-50 via-white to-gray-100 overflow-hidden"
-      >
+    <section
+      id="projects"
+      className="relative min-h-screen py-24 md:py-24 pt-32 md:pt-32 bg-gradient-to-b from-gray-50 via-white to-gray-100 overflow-hidden"
+    >
       {/* Background Elements */}
       <div className="absolute inset-0 w-full h-full">
         <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-purple-500/15 rounded-full blur-3xl animate-pulse" />

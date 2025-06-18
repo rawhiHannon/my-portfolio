@@ -101,7 +101,7 @@ const ContactSection = () => {
   return (
     <section
       id="contact"
-      className="py-24 md:py-24 pt-40 md:pt-32 bg-gradient-to-b from-gray-50 via-white to-gray-100 relative overflow-hidden"
+      className="py-24 md:py-24 pt-32 md:pt-32 bg-gradient-to-b from-gray-50 via-white to-gray-100 relative overflow-hidden"
     >
       {/* Background Elements */}
       <div className="absolute inset-0">

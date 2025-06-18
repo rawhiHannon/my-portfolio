@@ -83,9 +83,14 @@ const HeroSection = () => {
   };
 
   return (
-<section id="home" 
-className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-100 pt-32 md:pt-0 pb-10 lg:pb-0"
->
+    <section
+      id="home"
+      className="relative min-h-screen flex justify-center
+                 items-center md:items-start
+                 overflow-hidden
+                 bg-gradient-to-br from-gray-50 via-white to-gray-100
+                 pt-32 md:pt-32 pb-10 lg:pb-0"
+    >
       <canvas
         ref={canvasRef}
         className="absolute inset-0 z-0"
