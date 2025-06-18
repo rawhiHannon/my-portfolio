@@ -389,14 +389,14 @@ function App() {
               onClick={() => navigateToSection(section)}
               className={`w-3 h-3 rounded-full transition-all duration-300 relative ${
                 index === currentSection
-                  ? 'bg-indigo-500 scale-125 shadow-md shadow-indigo-500/50'
+                  ? 'bg-cyan-400 scale-125 shadow-md shadow-cyan-400/50'
                   : 'bg-gray-400 hover:bg-gray-300 hover:scale-110'
               }`}
               title={`עבור ל${section === 'home' ? 'בית' : section === 'services' ? 'שירותים' : section === 'projects' ? 'פרויקטים' : 'צור קשר'}`}
             >
               {/* Active indicator ring */}
               {index === currentSection && (
-                <div className="absolute inset-0 rounded-full border-2 border-indigo-300 scale-150 opacity-50 animate-pulse"></div>
+                <div className="absolute inset-0 rounded-full border-2 border-cyan-300 scale-150 opacity-50 animate-pulse"></div>
               )}
             </button>
           ))}
@@ -407,7 +407,7 @@ function App() {
           {showScrollTop && (
             <motion.button
               onClick={scrollToTop}
-              className="fixed bottom-6 right-4 xl:right-8 p-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-2xl shadow-xl hover:shadow-indigo-500/25 z-50 group"
+              className="fixed bottom-6 right-4 xl:right-8 p-3 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white rounded-2xl shadow-xl hover:shadow-cyan-500/25 z-50 group"
               initial={{ opacity: 0, scale: 0, y: 100 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0, y: 100 }}

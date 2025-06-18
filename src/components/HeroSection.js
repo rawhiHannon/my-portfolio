@@ -100,7 +100,7 @@ const HeroSection = () => {
       <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/15 via-transparent to-blue-600/15 z-1" />
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-gray-50/30 to-gray-100/50 z-2" />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-8 sm:px-6 lg:px-8 py-8">
+      <div className="relative z-10 max-w-7xl mx-auto px-8 sm:px-6 lg:px-8 py-3">
         <div className="grid lg:grid-cols-2 gap-8 items-center">
           
           {/* Left Side - Profile Card - Mobile: order-1, Desktop: order-1 */}
