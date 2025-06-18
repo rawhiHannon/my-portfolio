@@ -110,7 +110,7 @@ const HeroSection = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <div className="bg-white backdrop-blur-xl border border-gray-200 rounded-2xl p-8 text-center shadow-xl shadow-gray-500/10 max-w-md mx-auto">
+            <div className="bg-white backdrop-blur-xl border border-gray-200 rounded-2xl p-8 text-center shadow-xl shadow-gray-500/10 max-w-lg mx-auto">
               {/* Profile Picture */}
               <motion.div
                 className="relative mx-auto mb-5"
