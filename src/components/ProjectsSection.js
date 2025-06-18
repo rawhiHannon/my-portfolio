@@ -116,7 +116,7 @@ const ProjectsSection = () => {
           {currentPage > 0 && (
             <button
               onClick={goToPrevPage}
-              className="absolute left-4 top-1/2 transform -translate-y-1/2 z-30 p-3 bg-white/90 hover:bg-white text-gray-800 rounded-full shadow-xl hover:shadow-2xl transition-all duration-200 hover:scale-110 border border-gray-200"
+              className="absolute left-1 top-1/2 transform -translate-y-1/2 z-30 p-3 bg-white/90 hover:bg-white text-gray-800 rounded-full shadow-xl hover:shadow-2xl transition-all duration-200 hover:scale-110 border border-gray-200"
             >
               <ChevronLeft size={24} />
             </button>
