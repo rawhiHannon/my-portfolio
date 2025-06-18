@@ -181,8 +181,8 @@ function App() {
           const nextSectionId = sections[nextSectionIndex];
           const nextIntersection = sectionIntersections[nextSectionId];
           
-          // Snap if next section is 30% or more visible
-          if (nextIntersection && nextIntersection.intersectionRatio >= 0.3) {
+          // Snap if next section is 20% or more visible (changed from 30%)
+          if (nextIntersection && nextIntersection.intersectionRatio >= 0.2) {
             shouldSnap = true;
             targetSectionIndex = nextSectionIndex;
           }
