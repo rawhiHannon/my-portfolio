@@ -28,8 +28,21 @@ const ModernHeader = () => {
 
   const scrollToSection = (href) => {
     const sectionName = href.replace('#', '');
-    navigateToSection(sectionName);
     setIsMenuOpen(false);
+    
+    // Try using the context navigation first
+    if (navigateToSection) {
+      navigateToSection(sectionName);
+    } else {
+      // Fallback to direct scrolling
+      const targetElement = document.getElementById(sectionName);
+      if (targetElement) {
+        targetElement.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    }
   };
 
   return (
@@ -108,16 +121,10 @@ const ModernHeader = () => {
           <div className="md:hidden">
             <motion.button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="p-3 text-white rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300"
+              className="p-2 text-white"
               whileTap={{ scale: 0.95 }}
-              whileHover={{ scale: 1.05 }}
             >
-              <motion.div
-                animate={{ rotate: isMenuOpen ? 180 : 0 }}
-                transition={{ duration: 0.3 }}
-              >
-                {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-              </motion.div>
+              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </motion.button>
           </div>
         </div>
@@ -126,48 +133,28 @@ const ModernHeader = () => {
         <AnimatePresence>
           {isMenuOpen && (
             <motion.nav
-              className="md:hidden py-4 border-t border-gray-800/50 bg-black/98 backdrop-blur-xl rounded-b-2xl mx-4"
-              initial={{ opacity: 0, height: 0, y: -20 }}
-              animate={{ opacity: 1, height: 'auto', y: 0 }}
-              exit={{ opacity: 0, height: 0, y: -20 }}
-              transition={{ duration: 0.4, ease: "easeOut" }}
+              className="md:hidden py-4 border-t border-gray-800 bg-black/95 backdrop-blur-xl"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
             >
-              <div className="space-y-2 px-2">
-                {navigation.map((item, index) => (
-                  <motion.button
-                    key={item.key}
-                    onClick={() => scrollToSection(item.href)}
-                    className={`w-full py-4 px-6 rounded-xl transition-all duration-300 text-lg font-medium text-right relative overflow-hidden group ${
-                      currentSection === item.key 
-                        ? 'text-white bg-gradient-to-r from-cyan-500/20 to-cyan-600/20 border border-cyan-400/30 shadow-lg shadow-cyan-500/10' 
-                        : 'text-gray-300 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10'
-                    }`}
-                    initial={{ opacity: 0, x: 30 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1, duration: 0.3 }}
-                    whileHover={{ scale: 1.02, x: -5 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    {/* Active background effect */}
-                    {currentSection === item.key && (
-                      <motion.div
-                        className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 to-cyan-600/5 rounded-xl"
-                        layoutId="activeMobileNavBackground"
-                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
-                      />
-                    )}
-                    
-                    {/* Side indicator for active state */}
-                    <motion.div
-                      className={`absolute right-2 top-1/2 transform -translate-y-1/2 w-1 h-8 bg-gradient-to-b from-cyan-400 to-cyan-600 rounded-full transition-all duration-300 ${
-                        currentSection === item.key ? 'opacity-100 scale-100' : 'opacity-0 scale-0'
-                      }`}
-                    />
-                    
-                    <span className="relative z-10">{t(`navigation.${item.key}`)}</span>
-                  </motion.button>
-                ))}
-              </div>
+              {navigation.map((item, index) => (
+                <motion.button
+                  key={item.key}
+                  onClick={() => scrollToSection(item.href)}
+                  className={`block w-full py-4 px-4 transition-colors duration-200 text-lg font-medium text-right ${
+                    currentSection === item.key 
+                      ? 'text-cyan-400 bg-cyan-500/10' 
+                      : 'text-gray-300 hover:text-cyan-400 hover:bg-white/5'
+                  }`}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  {t(`navigation.${item.key}`)}
+                </motion.button>
+              ))}
             </motion.nav>
           )}
         </AnimatePresence>
