@@ -171,17 +171,20 @@ function App() {
       const prevSectionVisibleHeight = Math.max(0, Math.min(prevPosition.bottom, scrollTop + windowHeight) - Math.max(prevPosition.top, scrollTop));
       const prevSectionVisibility = prevSectionVisibleHeight / prevPosition.height;
       
-      // Calculate progress from the bottom of current section (inverted for upward scroll)
-      const currentSectionProgressFromBottom = Math.max(0, (currentPosition.bottom - (scrollTop + windowHeight)) / Math.max(currentPosition.height - windowHeight, 1));
+      // Calculate how close we are to the top of the current section
+      // This should be similar to the downward logic but inverted
+      const distanceFromTopOfSection = scrollTop - currentPosition.top;
+      const currentSectionProgressFromTop = distanceFromTopOfSection / Math.max(currentPosition.height - windowHeight, 1);
       
       // Allow snap if:
-      // 1. Current section is taller than viewport AND we've scrolled up through most of it from bottom (80%+)
+      // 1. Current section is taller than viewport AND we're close to the top (less than 20% scrolled down from top)
       // 2. OR current section fits in viewport AND previous section is 20%+ visible
-      // 3. OR we've scrolled past the current section entirely (near top)
       if (currentPosition.height > windowHeight) {
-        return currentSectionProgressFromBottom >= 0.8 && prevSectionVisibility >= 0.2;
+        // For tall sections: only snap if we're very close to the top AND previous section is visible
+        return currentSectionProgressFromTop <= 0.2 && prevSectionVisibility >= 0.2;
       } else {
-        return prevSectionVisibility >= 0.2 || scrollTop <= currentPosition.top + windowHeight * 0.3;
+        // For normal sections: snap if previous section is 20%+ visible
+        return prevSectionVisibility >= 0.2;
       }
     }
   };
