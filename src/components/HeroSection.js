@@ -89,7 +89,7 @@ const HeroSection = () => {
                  items-center md:items-start
                  overflow-hidden
                  bg-gradient-to-br from-gray-50 via-white to-gray-100
-                 pt-32 md:pt-32 pb-10 lg:pb-0"
+                 pt-32 md:pt-32 pb-16 lg:pb-16"
     >
       <canvas
         ref={canvasRef}
@@ -100,8 +100,8 @@ const HeroSection = () => {
       <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/15 via-transparent to-blue-600/15 z-1" />
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-gray-50/30 to-gray-100/50 z-2" />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-8 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+      <div className="relative z-10 max-w-7xl mx-auto px-8 sm:px-6 lg:px-8 py-8">
+        <div className="grid lg:grid-cols-2 gap-8 items-center">
           
           {/* Left Side - Profile Card - Mobile: order-1, Desktop: order-1 */}
           <motion.div
@@ -110,50 +110,49 @@ const HeroSection = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <div className="bg-white/80 backdrop-blur-xl border border-gray-200/50 rounded-3xl p-8 text-center shadow-2xl shadow-gray-900/10">
+            <div className="bg-white backdrop-blur-xl border border-gray-200 rounded-2xl p-8 text-center shadow-xl shadow-gray-500/10 max-w-md mx-auto">
               {/* Profile Picture */}
               <motion.div
-                className="relative mx-auto mb-6"
+                className="relative mx-auto mb-5"
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.4 }}
               >
-                <div className="w-40 h-40 mx-auto relative">
-                  <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 rounded-full border-4 border-cyan-400/50 flex items-center justify-center overflow-hidden shadow-lg">
+                <div className="w-36 h-36 mx-auto relative">
+                  <div className="w-full h-full bg-gray-100 rounded-full border-2 border-gray-200 flex items-center justify-center overflow-hidden shadow-md">
                     <img 
                       src="/nizar.jpg"
                       alt="ניזאר סמרי"
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover rounded-full"
                       onError={(e) => {
                         e.target.style.display = 'none';
                         e.target.nextSibling.style.display = 'flex';
                       }}
                     />
-                    <div className="w-full h-full bg-gradient-to-br from-cyan-400 to-blue-600 rounded-full hidden items-center justify-center">
-                      <User size={60} className="text-white" />
+                    <div className="w-full h-full bg-gray-300 rounded-full hidden items-center justify-center">
+                      <User size={54} className="text-gray-600" />
                     </div>
                   </div>
-                  <div className="absolute -bottom-2 -right-2 w-12 h-12 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
-                    ✓
+                  <div className="absolute bottom-1 right-1 w-8 h-8 bg-white border-2 border-white rounded-full flex items-center justify-center shadow-sm">
+                    <div className="w-4 h-4 bg-green-500 rounded-full"></div>
                   </div>
                 </div>
               </motion.div>
 
-
               {/* Professional Info */}
               <motion.div
-                className="space-y-4 mb-8"
+                className="space-y-4 mb-7"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.6 }}
               >
-                <h1 className="text-3xl font-bold text-gray-900 font-hebrew">
+                <h1 className="text-2xl font-bold text-gray-900 font-hebrew">
                   {portfolioData.personal.name}
                 </h1>
-                <p className="text-cyan-600 font-medium text-lg font-hebrew">
+                <p className="text-gray-600 font-medium text-lg font-hebrew">
                   {portfolioData.personal.title}
                 </p>
-                <p className="text-gray-600 font-hebrew">
+                <p className="text-gray-500 text-base font-hebrew">
                   {portfolioData.personal.company}
                 </p>
               </motion.div>
@@ -173,22 +172,22 @@ const HeroSection = () => {
                   <motion.div
                     key={index}
                     className="group/contact"
-                    whileHover={{ scale: 1.02, x: -5 }}
+                    whileHover={{ scale: 1.02 }}
                     initial={{ opacity: 0, x: 50 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 1 + index * 0.1 }}
                   >
                     {item.href ? (
-                      <a href={item.href} className="flex items-center justify-between p-4 bg-white/5 backdrop-blur-sm rounded-xl hover:bg-white/10 transition-all duration-300 border border-white/10 group-hover/contact:border-cyan-400/50">
-                        <span className="text-gray-400 text-sm font-hebrew group-hover/contact:text-black transition-colors">{item.text}</span>
-                        <div className={`p-2 bg-gradient-to-r ${item.color} rounded-lg shadow-lg group-hover/contact:scale-110 transition-transform`}>
+                      <a href={item.href} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all duration-300 border border-gray-100 group-hover/contact:border-gray-200">
+                        <span className="text-gray-600 text-sm font-hebrew group-hover/contact:text-gray-900 transition-colors">{item.text}</span>
+                        <div className={`p-2.5 bg-gradient-to-r ${item.color} rounded-lg shadow-sm group-hover/contact:shadow-md transition-all`}>
                           <item.icon size={16} className="text-white" />
                         </div>
                       </a>
                     ) : (
-                      <div className="flex items-center justify-between p-4 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10">
-                        <span className="text-gray-400 text-sm font-hebrew">{item.text}</span>
-                        <div className={`p-2 bg-gradient-to-r ${item.color} rounded-lg shadow-lg`}>
+                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100">
+                        <span className="text-gray-600 text-sm font-hebrew">{item.text}</span>
+                        <div className={`p-2.5 bg-gradient-to-r ${item.color} rounded-lg shadow-sm`}>
                           <item.icon size={16} className="text-white" />
                         </div>
                       </div>

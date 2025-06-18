@@ -1,4 +1,4 @@
-import React, { useEffect, useState, createContext, useContext } from 'react';
+import React, { useEffect, useState, createContext, useContext, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronUp } from 'lucide-react';
 import { useLanguage } from './hooks/useLanguage';
@@ -26,8 +26,11 @@ function App() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [currentSection, setCurrentSection] = useState(0);
   const [isScrolling, setIsScrolling] = useState(false);
-
+  const [sectionIntersections, setSectionIntersections] = useState({});
+  
   const sections = ['home', 'services', 'projects', 'contact'];
+  const observerRef = useRef(null);
+  const scrollTimeoutRef = useRef(null);
 
   // Function to navigate to a specific section
   const navigateToSection = (sectionName) => {
@@ -60,82 +63,91 @@ function App() {
     sections
   };
 
+  // Setup intersection observer for sections
+  useEffect(() => {
+    const observerOptions = {
+      root: null,
+      rootMargin: '0px',
+      threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+    };
+
+    observerRef.current = new IntersectionObserver((entries) => {
+      const intersections = {};
+      
+      entries.forEach((entry) => {
+        const sectionId = entry.target.id;
+        intersections[sectionId] = {
+          isIntersecting: entry.isIntersecting,
+          intersectionRatio: entry.intersectionRatio,
+          boundingRect: entry.boundingClientRect
+        };
+      });
+      
+      setSectionIntersections(prev => ({ ...prev, ...intersections }));
+    }, observerOptions);
+
+    // Observe all sections
+    sections.forEach(sectionId => {
+      const element = document.getElementById(sectionId);
+      if (element && observerRef.current) {
+        observerRef.current.observe(element);
+      }
+    });
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, [sections]);
+
   useEffect(() => {
     setIsLoaded(true);
 
-    let scrollTimeout;
     let lastScrollTime = 0;
     const scrollCooldown = 1000; // 1 second cooldown between snaps
 
-    const handleScroll = (e) => {
-      const now = Date.now();
-      
+    const handleScroll = () => {
       // Update scroll-to-top button
       setShowScrollTop(window.scrollY > 400);
 
-      // Skip if currently scrolling or in cooldown
-      if (isScrolling || (now - lastScrollTime) < scrollCooldown) {
-        return;
+      // Clear existing timeout
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
       }
 
-      // Clear existing timeout
-      clearTimeout(scrollTimeout);
+      // Set timeout to handle potential section changes
+      scrollTimeoutRef.current = setTimeout(() => {
+        if (isScrolling) return;
 
-      // Set timeout to handle scroll snap
-      scrollTimeout = setTimeout(() => {
-        const scrollY = window.scrollY;
-        const windowHeight = window.innerHeight;
-        const documentHeight = document.documentElement.scrollHeight;
-        
-        // Check if we're at the very bottom or top
-        const isAtBottom = (scrollY + windowHeight) >= documentHeight - 10;
-        const isAtTop = scrollY <= 10;
-        
-        // Don't snap if at extremes
-        if (isAtBottom || isAtTop) {
-          return;
-        }
-        
-        // Calculate which section we should be in based on scroll position
-        const sectionIndex = Math.round(scrollY / windowHeight);
-        const targetSection = Math.max(0, Math.min(sectionIndex, sections.length - 1));
-        
-        // Check if we're close to a section boundary (within 20% of viewport height)
-        const sectionPosition = targetSection * windowHeight;
-        const distanceFromSection = Math.abs(scrollY - sectionPosition);
-        const snapThreshold = windowHeight * 0.2; // 20% of viewport height
-        
-        if (distanceFromSection < snapThreshold && targetSection !== currentSection) {
-          lastScrollTime = now;
-          setIsScrolling(true);
-          setCurrentSection(targetSection);
-          
-          // Smooth scroll to the target section
-          const targetElement = document.getElementById(sections[targetSection]);
-          if (targetElement) {
-            targetElement.scrollIntoView({
-              behavior: 'smooth',
-              block: 'start'
-            });
-            
-            // Reset scrolling flag after animation completes
-            setTimeout(() => {
-              setIsScrolling(false);
-            }, 800); // Match the scroll animation duration
-          } else {
-            setIsScrolling(false);
+        // Find the section that should be considered "current" based on visibility
+        let newCurrentSection = currentSection;
+        let maxVisibilityRatio = 0;
+
+        sections.forEach((sectionId, index) => {
+          const intersection = sectionIntersections[sectionId];
+          if (intersection && intersection.isIntersecting) {
+            // Prioritize sections that are more than 50% visible
+            if (intersection.intersectionRatio > 0.5 && intersection.intersectionRatio > maxVisibilityRatio) {
+              maxVisibilityRatio = intersection.intersectionRatio;
+              newCurrentSection = index;
+            }
           }
+        });
+
+        // Update current section if it changed
+        if (newCurrentSection !== currentSection) {
+          setCurrentSection(newCurrentSection);
         }
-      }, 150); // Debounce scroll events
+      }, 100);
     };
 
-    // Handle wheel events for more precise control
+    // Handle wheel events for section snapping
     const handleWheel = (e) => {
       const now = Date.now();
       
       // Skip if currently scrolling or in cooldown
       if (isScrolling || (now - lastScrollTime) < scrollCooldown) {
-        e.preventDefault();
         return;
       }
 
@@ -144,52 +156,54 @@ function App() {
       const windowHeight = window.innerHeight;
       const documentHeight = document.documentElement.scrollHeight;
       
-      // Calculate current section based on scroll position
-      const currentSectionIndex = Math.round(scrollY / windowHeight);
-      
-      // Check if we're at the very bottom of the page
+      // Check if we're at the very bottom or top
       const isAtBottom = (scrollY + windowHeight) >= documentHeight - 10;
-      
-      // Check if we're at the very top of the page
       const isAtTop = scrollY <= 10;
       
-      // Don't snap if trying to scroll down when already at bottom
-      if (delta > 0 && isAtBottom) {
-        return; // Allow normal behavior (stay at bottom)
+      // Allow normal scrolling at extremes
+      if ((delta > 0 && isAtBottom) || (delta < 0 && isAtTop)) {
+        return;
       }
+
+      // Check if we should snap to next/previous section
+      const currentSectionId = sections[currentSection];
+      const currentIntersection = sectionIntersections[currentSectionId];
       
-      // Don't snap if trying to scroll up when already at top
-      if (delta < 0 && isAtTop) {
-        return; // Allow normal behavior (stay at top)
-      }
-      
-      // Handle fast scrolling - jump multiple sections based on scroll intensity
-      const scrollIntensity = Math.abs(delta);
-      let sectionJump = 1;
-      
-      if (scrollIntensity > 100) {
-        sectionJump = 2;
-      }
-      if (scrollIntensity > 200) {
-        sectionJump = 3;
-      }
-      if (scrollIntensity > 300) {
-        // Very fast scroll - go to extreme end
-        sectionJump = sections.length;
-      }
-      
-      // Determine target section based on scroll direction and intensity
-      let targetSectionIndex;
+      if (!currentIntersection) return;
+
+      let shouldSnap = false;
+      let targetSectionIndex = currentSection;
+
       if (delta > 0) {
         // Scrolling down
-        targetSectionIndex = Math.min(currentSectionIndex + sectionJump, sections.length - 1);
+        const nextSectionIndex = currentSection + 1;
+        if (nextSectionIndex < sections.length) {
+          const nextSectionId = sections[nextSectionIndex];
+          const nextIntersection = sectionIntersections[nextSectionId];
+          
+          // Snap if next section is 30% or more visible
+          if (nextIntersection && nextIntersection.intersectionRatio >= 0.3) {
+            shouldSnap = true;
+            targetSectionIndex = nextSectionIndex;
+          }
+        }
       } else {
         // Scrolling up
-        targetSectionIndex = Math.max(currentSectionIndex - sectionJump, 0);
+        const prevSectionIndex = currentSection - 1;
+        if (prevSectionIndex >= 0) {
+          const prevSectionId = sections[prevSectionIndex];
+          const prevIntersection = sectionIntersections[prevSectionId];
+          
+          // Snap if current section is less than 70% visible (meaning we've scrolled up significantly)
+          if (currentIntersection.intersectionRatio < 0.7) {
+            shouldSnap = true;
+            targetSectionIndex = prevSectionIndex;
+          }
+        }
       }
-      
-      // Only snap if we're changing sections and scroll is significant
-      if (targetSectionIndex !== currentSectionIndex && Math.abs(delta) > 10) {
+
+      // Perform the snap if conditions are met
+      if (shouldSnap && Math.abs(delta) > 10) {
         e.preventDefault();
         lastScrollTime = now;
         setIsScrolling(true);
@@ -212,16 +226,18 @@ function App() {
     };
 
     // Add event listeners
-    window.addEventListener('scroll', handleScroll, { passive: false });
+    window.addEventListener('scroll', handleScroll, { passive: true });
     window.addEventListener('wheel', handleWheel, { passive: false });
 
     // Cleanup
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('wheel', handleWheel);
-      clearTimeout(scrollTimeout);
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
     };
-  }, [isScrolling, currentSection, sections]);
+  }, [isScrolling, currentSection, sections, sectionIntersections]);
 
   const scrollToTop = () => {
     navigateToSection('home');
@@ -265,18 +281,23 @@ function App() {
         </main>
 
         {/* Section Indicator */}
-        <div className="fixed right-8 top-1/2 transform -translate-y-1/2 z-40 hidden lg:flex flex-col gap-4">
+        <div className="fixed right-4 xl:right-8 top-1/2 transform -translate-y-1/2 z-40 hidden lg:flex flex-col gap-3 bg-white/10 backdrop-blur-md rounded-full p-3 border border-white/20 shadow-lg">
           {sections.map((section, index) => (
             <button
               key={section}
               onClick={() => navigateToSection(section)}
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${
+              className={`w-3 h-3 rounded-full transition-all duration-300 relative ${
                 index === currentSection
-                  ? 'bg-cyan-500 scale-150 shadow-lg shadow-cyan-500/50'
-                  : 'bg-gray-400 hover:bg-gray-300'
+                  ? 'bg-indigo-500 scale-125 shadow-md shadow-indigo-500/50'
+                  : 'bg-gray-400 hover:bg-gray-300 hover:scale-110'
               }`}
               title={`עבור ל${section === 'home' ? 'בית' : section === 'services' ? 'שירותים' : section === 'projects' ? 'פרויקטים' : 'צור קשר'}`}
-            />
+            >
+              {/* Active indicator ring */}
+              {index === currentSection && (
+                <div className="absolute inset-0 rounded-full border-2 border-indigo-300 scale-150 opacity-50 animate-pulse"></div>
+              )}
+            </button>
           ))}
         </div>
 
@@ -285,15 +306,15 @@ function App() {
           {showScrollTop && (
             <motion.button
               onClick={scrollToTop}
-              className="fixed bottom-8 right-8 p-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-full shadow-2xl hover:shadow-cyan-500/25 z-50 group"
+              className="fixed bottom-6 right-4 xl:right-8 p-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-2xl shadow-xl hover:shadow-indigo-500/25 z-50 group"
               initial={{ opacity: 0, scale: 0, y: 100 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0, y: 100 }}
-              whileHover={{ scale: 1.1, y: -5 }}
+              whileHover={{ scale: 1.1, y: -3 }}
               whileTap={{ scale: 0.9 }}
               transition={{ type: "spring", stiffness: 260, damping: 20 }}
             >
-              <ChevronUp size={24} className="group-hover:-translate-y-1 transition-transform duration-300" />
+              <ChevronUp size={20} className="group-hover:-translate-y-1 transition-transform duration-300" />
             </motion.button>
           )}
         </AnimatePresence>
