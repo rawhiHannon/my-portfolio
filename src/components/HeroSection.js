@@ -155,27 +155,39 @@ className="relative min-h-screen flex items-center justify-center overflow-hidde
 
               {/* Contact Info */}
               <motion.div 
-                className="space-y-3"
-                initial={{ opacity: 0, y: 20 }}
+                className="space-y-3 relative z-10"
+                initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8 }}
+                transition={{ delay: 0.9 }}
               >
                 {[
-                  { icon: Phone, text: portfolioData.personal.phone, href: `tel:${portfolioData.personal.phone}` },
-                  { icon: Mail, text: portfolioData.personal.email, href: `mailto:${portfolioData.personal.email}` },
-                  { icon: MapPin, text: portfolioData.personal.location }
+                  { icon: Phone, text: portfolioData.personal.phone, href: `tel:${portfolioData.personal.phone}`, color: 'from-green-400 to-emerald-500' },
+                  { icon: Mail, text: portfolioData.personal.email, href: `mailto:${portfolioData.personal.email}`, color: 'from-blue-400 to-cyan-500' },
+                  { icon: MapPin, text: portfolioData.personal.location, color: 'from-red-400 to-pink-500' }
                 ].map((item, index) => (
                   <motion.div
                     key={index}
-                    className="group"
-                    whileHover={{ scale: 1.02 }}
+                    className="group/contact"
+                    whileHover={{ scale: 1.02, x: -5 }}
+                    initial={{ opacity: 0, x: 50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 1 + index * 0.1 }}
                   >
-                    <div className="flex items-center justify-between p-3 bg-gray-50/70 rounded-xl hover:bg-gray-100/70 transition-colors border border-gray-200/30">
-                      <span className="text-gray-700 text-sm font-hebrew">{item.text}</span>
-                      <div className="p-2 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg shadow-md">
-                        <item.icon size={16} className="text-white" />
+                    {item.href ? (
+                      <a href={item.href} className="flex items-center justify-between p-4 bg-white/5 backdrop-blur-sm rounded-xl hover:bg-white/10 transition-all duration-300 border border-white/10 group-hover/contact:border-cyan-400/50">
+                        <span className="text-gray-400 text-sm font-hebrew group-hover/contact:text-black transition-colors">{item.text}</span>
+                        <div className={`p-2 bg-gradient-to-r ${item.color} rounded-lg shadow-lg group-hover/contact:scale-110 transition-transform`}>
+                          <item.icon size={16} className="text-white" />
+                        </div>
+                      </a>
+                    ) : (
+                      <div className="flex items-center justify-between p-4 bg-white/5 backdrop-blur-sm rounded-xl border border-white/10">
+                        <span className="text-gray-400 text-sm font-hebrew">{item.text}</span>
+                        <div className={`p-2 bg-gradient-to-r ${item.color} rounded-lg shadow-lg`}>
+                          <item.icon size={16} className="text-white" />
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </motion.div>
                 ))}
               </motion.div>
