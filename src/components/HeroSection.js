@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, MapPin, Phone, Mail, User } from 'lucide-react';
 import { useLanguage } from '../hooks/useLanguage';
@@ -7,93 +7,133 @@ import { portfolioData } from '../data/portfolioData';
 const HeroSection = () => {
   const { t, isRTL } = useLanguage();
   const canvasRef = useRef(null);
+  const animationFrameRef = useRef(null);
+  const particlesRef = useRef([]);
+  const isVisibleRef = useRef(true);
 
-  // Animated background with moving particles
+  // Optimized particle animation with reduced count and better cleanup
   useEffect(() => {
     const canvas = canvasRef.current;
+    if (!canvas) return;
+    
     const ctx = canvas.getContext('2d');
-    let animationFrameId;
+    let isActive = true;
     
     const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      if (!canvas || !isActive) return;
+      canvas.width = Math.min(window.innerWidth, 1920); // Cap max width
+      canvas.height = Math.min(window.innerHeight, 1080); // Cap max height
     };
     
-    const particles = Array.from({ length: 50 }, () => ({
-      x: Math.random() * window.innerWidth,
-      y: Math.random() * window.innerHeight,
-      size: Math.random() * 2 + 1,
-      speedX: (Math.random() - 0.5) * 0.5,
-      speedY: (Math.random() - 0.5) * 0.5,
-      opacity: Math.random() * 0.3 + 0.1
-    }));
+    // Reduced particle count from 50 to 20 for better performance
+    const initParticles = () => {
+      particlesRef.current = Array.from({ length: 20 }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: Math.random() * 1.5 + 0.5, // Smaller particles
+        speedX: (Math.random() - 0.5) * 0.3, // Slower movement
+        speedY: (Math.random() - 0.5) * 0.3,
+        opacity: Math.random() * 0.2 + 0.05 // Lower opacity
+      }));
+    };
 
     const animate = () => {
+      if (!isActive || !canvas || !isVisibleRef.current) return;
+      
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
-      particles.forEach((particle, index) => {
+      particlesRef.current.forEach((particle, index) => {
         particle.x += particle.speedX;
         particle.y += particle.speedY;
         
+        // Wrap around screen
         if (particle.x > canvas.width) particle.x = 0;
         if (particle.x < 0) particle.x = canvas.width;
         if (particle.y > canvas.height) particle.y = 0;
         if (particle.y < 0) particle.y = canvas.height;
         
+        // Draw particle
         ctx.beginPath();
         ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(34, 211, 238, ${particle.opacity * 2})`;
+        ctx.fillStyle = `rgba(34, 211, 238, ${particle.opacity})`;
         ctx.fill();
         
-        // Connect nearby particles
-        particles.slice(index + 1).forEach(otherParticle => {
-          const dx = particle.x - otherParticle.x;
-          const dy = particle.y - otherParticle.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-          
-          if (distance < 100) {
-            ctx.beginPath();
-            ctx.moveTo(particle.x, particle.y);
-            ctx.lineTo(otherParticle.x, otherParticle.y);
-            ctx.strokeStyle = `rgba(34, 211, 238, ${0.05 * (1 - distance / 100)})`;
-            ctx.stroke();
-          }
-        });
+        // Reduced connection distance and limit connections
+        if (index % 3 === 0) { // Only check connections for every 3rd particle
+          particlesRef.current.slice(index + 1, index + 4).forEach(otherParticle => {
+            const dx = particle.x - otherParticle.x;
+            const dy = particle.y - otherParticle.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            if (distance < 80) { // Reduced from 100
+              ctx.beginPath();
+              ctx.moveTo(particle.x, particle.y);
+              ctx.lineTo(otherParticle.x, otherParticle.y);
+              ctx.strokeStyle = `rgba(34, 211, 238, ${0.03 * (1 - distance / 80)})`;
+              ctx.stroke();
+            }
+          });
+        }
       });
       
-      animationFrameId = requestAnimationFrame(animate);
+      if (isActive) {
+        animationFrameRef.current = requestAnimationFrame(animate);
+      }
     };
 
+    // Intersection Observer to pause animation when not visible
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isVisibleRef.current = entry.isIntersecting;
+        if (entry.isIntersecting && isActive) {
+          animate();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
     resizeCanvas();
+    initParticles();
+    observer.observe(canvas);
     animate();
-    window.addEventListener('resize', resizeCanvas);
+
+    const handleResize = () => {
+      if (isActive) {
+        resizeCanvas();
+        initParticles();
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
 
     return () => {
-      window.removeEventListener('resize', resizeCanvas);
-      cancelAnimationFrame(animationFrameId);
+      isActive = false;
+      observer.disconnect();
+      window.removeEventListener('resize', handleResize);
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+      particlesRef.current = [];
     };
   }, []);
 
-  const scrollToProjects = () => {
+  const scrollToProjects = useCallback(() => {
     document.querySelector('#projects')?.scrollIntoView({ behavior: 'smooth' });
-  };
+  }, []);
 
-  const scrollToContact = () => {
+  const scrollToContact = useCallback(() => {
     document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' });
-  };
+  }, []);
 
   return (
     <section
       id="home"
-      className="relative min-h-screen flex justify-center
-                 items-center md:items-start
-                 overflow-hidden
-                 bg-gradient-to-br from-gray-50 via-white to-gray-100
-                 pt-32 md:pt-32 pb-16 lg:pb-16"
+      className="relative min-h-screen flex justify-center items-center md:items-start overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-100 pt-32 md:pt-32 pb-16 lg:pb-16"
     >
       <canvas
         ref={canvasRef}
         className="absolute inset-0 z-0"
+        style={{ willChange: 'transform' }}
       />
       
       {/* Gradient Overlays */}
