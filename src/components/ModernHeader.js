@@ -62,7 +62,23 @@ const ModernHeader = () => {
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.6 }}
-    >
+    > 
+    <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
+      <video
+        className="w-full h-full object-cover opacity-30"
+        src="/videos/crane-city.mp4"
+        autoPlay
+        muted
+        loop
+        playsInline
+      />
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: 'linear-gradient(to bottom,rgba(0,0,0,0) 60%,rgba(0,0,0,0.8) 100%)'
+        }}
+      />
+    </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
           {/* Logo */}
