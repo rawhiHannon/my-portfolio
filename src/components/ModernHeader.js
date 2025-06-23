@@ -59,14 +59,15 @@ const ModernHeader = () => {
       className={`fixed top-0 w-full z-40 transition-all duration-500 ${
         scrolled ? 'bg-black/95 backdrop-blur-xl border-b border-cyan-500/30' : 'bg-black/80 backdrop-blur-md'
       }`}
-      initial={{ y: -100 }}
+      initial={false}
       animate={{ y: 0 }}
       transition={{ duration: 0.6 }}
     > 
     <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
       <video
         className="w-full h-full object-cover opacity-30"
-        src="/videos/crane-city.mp4"
+        // style={{ objectPosition: '10% 10%' }}
+        src="/videos/city.mp4"
         autoPlay
         muted
         loop

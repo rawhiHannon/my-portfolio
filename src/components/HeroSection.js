@@ -118,6 +118,7 @@ const HeroSection = () => {
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.8, delay: 0.4 }}
               >
+                
                 {/* Hero Profile Glass Card */}
                 <motion.div
                   className="relative bg-white/20 backdrop-blur-2xl border border-white/30 rounded-3xl p-1 shadow-2xl"
@@ -129,8 +130,10 @@ const HeroSection = () => {
                   <div className="absolute -inset-1 bg-gradient-to-r from-gray-400 via-gray-500 to-gray-600 rounded-3xl opacity-20 blur-sm animate-pulse"></div>
                   
                   <div className="relative bg-white/95 backdrop-blur-xl rounded-3xl p-6">
+            
                     {/* Profile Section */}
                     <div className="flex items-center gap-4 mb-6">
+                      
                       <motion.div
                         className="relative"
                         whileHover={{ scale: 1.05 }}
@@ -265,7 +268,23 @@ const HeroSection = () => {
             {/* Desktop View - Profile Card */}
             <div className="hidden lg:block">
               <div className="bg-white/80 backdrop-blur-md border border-white/20 rounded-3xl p-7 text-center shadow-[0_8px_32px_rgba(0,0,0,0.12)] shadow-cyan-500/8 max-w-md mx-auto relative overflow-hidden">
-                
+                <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
+                  <video
+                    className="w-full h-full object-cover opacity-15"
+                    style={{ objectPosition: '50% 10%' }}
+                    src="/videos/cranes-cinstructions.mp4"
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                  />
+                  <div
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                      background: 'linear-gradient(to bottom,rgba(0,0,0,0) 60%,rgba(0,0,0,0.8) 100%)'
+                    }}
+                  />
+                </div>
                 {/* Subtle gradient overlay */}
                 <div className="absolute inset-0 bg-gradient-to-b from-white/50 to-transparent pointer-events-none" />
                 
