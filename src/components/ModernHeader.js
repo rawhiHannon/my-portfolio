@@ -66,8 +66,8 @@ const ModernHeader = () => {
     <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
       <video
         className="w-full h-full object-cover opacity-30"
-        // style={{ objectPosition: '10% 10%' }}
-        src="/videos/city.mp4"
+        style={{ objectPosition: '40% 70%' }}
+        src="/videos/black-city.mp4"
         autoPlay
         muted
         loop
@@ -116,10 +116,10 @@ const ModernHeader = () => {
               >
                 {/* Background layers */}
                 <div className={`absolute inset-0 transition-all duration-300 ${
-                  activeSection === item.key 
-                    ? 'bg-gradient-to-r from-cyan-500/30 to-blue-500/30' 
-                    : 'bg-white/5 hover:bg-white/10'
-                }`} />
+                   activeSection === item.key 
+                     ? 'bg-gradient-to-r from-cyan-500 to-blue-600'  /* full-strength gradient */
+                     : 'bg-white/30 hover:bg-white/50'             /* solid translucent white */
+                 }`} />
                 
                 {/* Animated background on hover */}
                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-all duration-300 scale-x-0 group-hover:scale-x-100 origin-left" />

@@ -270,7 +270,7 @@ const HeroSection = () => {
               <div className="bg-white/80 backdrop-blur-md border border-white/20 rounded-3xl p-7 text-center shadow-[0_8px_32px_rgba(0,0,0,0.12)] shadow-cyan-500/8 max-w-md mx-auto relative overflow-hidden">
                 <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
                   <video
-                    className="w-full h-full object-cover opacity-15"
+                    className="w-full h-full object-cover opacity-20"
                     style={{ objectPosition: '50% 10%' }}
                     src="/videos/cranes-cinstructions.mp4"
                     autoPlay
@@ -327,10 +327,10 @@ const HeroSection = () => {
                     <h1 className="text-xl font-bold text-gray-900 font-hebrew">
                       {portfolioData.personal.name}
                     </h1>
-                    <p className="text-gray-600 font-medium text-base font-hebrew">
+                    <p className="text-gray-900 font-medium text-base font-hebrew">
                       {portfolioData.personal.title}
                     </p>
-                    <p className="text-gray-500 text-sm font-hebrew">
+                    <p className="text-gray-900 text-sm font-hebrew">
                       {portfolioData.personal.company}
                     </p>
                   </motion.div>
