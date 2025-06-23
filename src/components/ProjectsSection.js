@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { ExternalLink, Tag, X, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -18,117 +18,33 @@ const ProjectsSection = () => {
   // Mobile carousel state
   const [mobileCurrentIndex, setMobileCurrentIndex] = useState(0);
 
-  // Store scroll position when modal opens
-  const [savedScrollPosition, setSavedScrollPosition] = useState(0);
-  
-  // Flag to prevent app scroll interference during modal operations
-  const [isModalTransitioning, setIsModalTransitioning] = useState(false);
+  // Simple modal state management
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Add effect to prevent body scroll when modal is open
+  // Handle modal opening
+  const openModal = useCallback((project) => {
+    // Simply prevent scrolling without changing position
+    document.body.style.overflow = 'hidden';
+    
+    setIsModalOpen(true);
+    setSelectedProject(project);
+  }, []);
+
+  // Handle modal closing
+  const closeModal = useCallback(() => {
+    // Just restore scrolling
+    document.body.style.overflow = '';
+    
+    setIsModalOpen(false);
+    setSelectedProject(null);
+  }, []);
+
+  // Cleanup on unmount
   React.useEffect(() => {
-    if (selectedProject) {
-      // Set global flag to prevent app scroll interference
-      window.__modalTransitioning = true;
-      
-      // Store current scroll position IMMEDIATELY
-      const scrollY = window.scrollY;
-      setSavedScrollPosition(scrollY);
-      
-      // Add a custom attribute to the body to signal other components
-      document.body.setAttribute('data-modal-open', 'true');
-      
-      // Use requestAnimationFrame to ensure we capture the position before any other effects
-      requestAnimationFrame(() => {
-        // Disable scrolling on the body and html
-        document.body.style.position = 'fixed';
-        document.body.style.top = `-${scrollY}px`;
-        document.body.style.left = '0';
-        document.body.style.right = '0';
-        document.body.style.overflow = 'hidden';
-        document.documentElement.style.overflow = 'hidden';
-        document.body.style.width = '100%';
-        
-        // Also prevent touch scrolling on mobile
-        document.body.style.touchAction = 'none';
-        document.documentElement.style.touchAction = 'none';
-        
-        // Clear transitioning flag after modal is fully open
-        setTimeout(() => {
-          window.__modalTransitioning = false;
-        }, 100);
-      });
-    } else {
-      // Set global flag to prevent app scroll interference during close
-      window.__modalTransitioning = true;
-      
-      // When closing modal, restore everything
-      const scrollPosition = savedScrollPosition;
-      
-      // Remove the modal attribute
-      document.body.removeAttribute('data-modal-open');
-      
-      // Re-enable scrolling first
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.left = '';
-      document.body.style.right = '';
-      document.body.style.overflow = '';
-      document.body.style.width = '';
-      document.documentElement.style.overflow = '';
-      document.body.style.touchAction = '';
-      document.documentElement.style.touchAction = '';
-      
-      // Restore scroll position with multiple attempts and longer delays
-      if (scrollPosition !== 0) {
-        // Create a more aggressive restoration sequence
-        const restorePosition = () => {
-          window.scrollTo({
-            top: scrollPosition,
-            left: 0,
-            behavior: 'instant'
-          });
-        };
-        
-        // Immediate restore
-        restorePosition();
-        
-        // Multiple attempts with longer delays to override app logic
-        requestAnimationFrame(() => {
-          restorePosition();
-          setTimeout(restorePosition, 50);
-          setTimeout(restorePosition, 100);
-          setTimeout(restorePosition, 200);
-          setTimeout(restorePosition, 300);
-          setTimeout(restorePosition, 500);
-          
-          // Clear global flag after all attempts
-          setTimeout(() => {
-            window.__modalTransitioning = false;
-          }, 600);
-        });
-      } else {
-        // Clear global flag if no scroll restoration needed
-        setTimeout(() => {
-          window.__modalTransitioning = false;
-        }, 100);
-      }
-    }
-
-    // Cleanup function to restore scrolling when component unmounts
     return () => {
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.left = '';
-      document.body.style.right = '';
       document.body.style.overflow = '';
-      document.body.style.width = '';
-      document.documentElement.style.overflow = '';
-      document.body.style.touchAction = '';
-      document.documentElement.style.touchAction = '';
-      document.body.removeAttribute('data-modal-open');
-      window.__modalTransitioning = false;
     };
-  }, [selectedProject]);
+  }, []);
 
   // Project images mapping with modern fallback
   const getProjectImage = (id) => {
@@ -265,10 +181,9 @@ const ProjectsSection = () => {
                 >
                   <div
                     className="cursor-pointer group transition-all duration-300"
-                    onClick={() => setSelectedProject(project)}
+                    onClick={() => openModal(project)}
                   >
                     <div className="relative overflow-hidden rounded-2xl bg-white/90 backdrop-blur-xl border border-gray-200/40 hover:border-cyan-400/60 transition-all duration-300 h-[26rem] flex flex-col shadow-lg shadow-gray-900/5 hover:shadow-2xl hover:shadow-cyan-500/10 hover:-translate-y-1">
-                      {/* Fixed image container with consistent dimensions - REMOVED CATEGORY TAG */}
                       <div className="relative w-full h-48 overflow-hidden bg-gray-100 flex-shrink-0">
                         <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 mix-blend-overlay z-10" />
                         <img
@@ -333,7 +248,7 @@ const ProjectsSection = () => {
           </div>
         </div>
   
-        {/* Mobile Carousel with improved spacing for arrows - REMOVED CATEGORY TAG */}
+        {/* Mobile Carousel */}
         <div className="md:hidden relative">
           <button
             onClick={prevProject}
@@ -354,14 +269,13 @@ const ProjectsSection = () => {
             <motion.div
               key={mobileCurrentIndex}
               className="cursor-pointer group transition-all duration-300"
-              onClick={() => setSelectedProject(portfolioData.projects[mobileCurrentIndex])}
+              onClick={() => openModal(portfolioData.projects[mobileCurrentIndex])}
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -50 }}
               transition={{ duration: 0.5 }}
             >
               <div className="relative overflow-hidden rounded-2xl bg-white/90 backdrop-blur-xl border border-gray-200/40 hover:border-cyan-400/60 transition-all duration-300 h-[26rem] flex flex-col shadow-lg shadow-gray-900/5 hover:shadow-2xl hover:shadow-cyan-500/10">
-                {/* Fixed mobile image container - REMOVED CATEGORY TAG */}
                 <div className="relative w-full h-48 overflow-hidden bg-gray-100 flex-shrink-0">
                   <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 mix-blend-overlay z-10" />
                   <img
@@ -421,58 +335,70 @@ const ProjectsSection = () => {
           </div>
         </div>
   
-        {/* Project Modal with improved design - FULL SCREEN ON MOBILE starting below header */}
-        <AnimatePresence>
-          {selectedProject && (
-            <>
+        {/* Fixed Project Modal - No more flashing */}
+        <AnimatePresence mode="wait">
+          {isModalOpen && selectedProject && (
+            <motion.div
+              className="fixed inset-0 z-[9999] flex items-center justify-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              {/* Backdrop */}
               <motion.div
-                className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[9999] flex items-center justify-center md:p-4"
+                className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+                onClick={closeModal}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                onClick={() => setSelectedProject(null)}
-                style={{ 
-                  position: 'fixed', 
-                  top: 0, 
-                  left: 0, 
-                  right: 0, 
-                  bottom: 0,
-                  zIndex: 9999
+              />
+              
+              {/* Modal Content - Fixed positioning with header spacing */}
+              <motion.div
+                className="relative w-full h-full md:max-w-4xl md:h-auto md:rounded-2xl bg-white overflow-hidden shadow-2xl flex flex-col mt-24 md:mt-0"
+                initial={{ scale: 0.95, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.95, opacity: 0 }}
+                transition={{ 
+                  type: "spring", 
+                  damping: 30, 
+                  stiffness: 400,
+                  duration: 0.3
+                }}
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  // Ensure modal is properly positioned on mobile
+                  maxHeight: 'calc(100vh - 6rem)' // Account for the top margin
                 }}
               >
-                <motion.div
-                  className="w-full bg-white overflow-hidden border-0 md:border md:border-gray-200/50 shadow-2xl flex flex-col
-                             h-full md:max-w-4xl md:w-full md:h-auto md:rounded-2xl
-                             pt-24 md:pt-0"
-                  initial={{ scale: 0.9, opacity: 0, y: 20 }}
-                  animate={{ scale: 1, opacity: 1, y: 0 }}
-                  exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                  transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                {/* Modal Header with fixed image dimensions */}
+                {/* Modal Header */}
                 <div className="relative flex-shrink-0">
                   <div className="h-60 md:h-80 overflow-hidden bg-gray-100">
                     <img
                       src={getProjectImage(selectedProject.id)}
                       alt={selectedProject.title}
                       className="w-full h-full object-cover object-center"
+                      loading="eager"
                     />
                     <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 mix-blend-overlay" />
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                  
+                  {/* Close button */}
                   <button
-                    onClick={() => setSelectedProject(null)}
-                    className="absolute top-4 right-4 p-3 bg-white hover:bg-gray-50 text-gray-800 rounded-full transition-all duration-300 shadow-2xl hover:shadow-3xl hover:scale-110 z-50 border-2 border-gray-300"
+                    onClick={closeModal}
+                    className="absolute top-4 right-4 p-3 bg-white hover:bg-gray-50 text-gray-800 rounded-full transition-all duration-200 shadow-2xl hover:scale-105 z-50 border-2 border-gray-300"
                     aria-label="Close modal"
                   >
                     <X size={24} className="hover:text-cyan-600 transition-colors" />
                   </button>
+                  
+                  {/* Title and category */}
                   <div className="absolute bottom-6 right-6 left-6">
                     <h3 className="text-2xl md:text-3xl font-bold text-white mb-2 text-right font-hebrew">
                       {selectedProject.title}
                     </h3>
-                    {/* MOVED CATEGORY TAG HERE */}
                     <div className="flex items-center gap-4 text-cyan-300 justify-end">
                       <div className="flex items-center gap-2">
                         <span className="font-hebrew px-3 py-1 bg-gradient-to-r from-cyan-500/80 to-blue-600/80 text-white text-sm font-semibold rounded-full shadow-md">
@@ -483,8 +409,8 @@ const ProjectsSection = () => {
                     </div>
                   </div>
                 </div>
-  
-                {/* Modal Content - SCROLLABLE ON MOBILE */}
+
+                {/* Modal Content - Scrollable */}
                 <div className="flex-1 overflow-y-auto p-6 md:p-8 bg-white">
                   <p className="text-gray-700 text-base md:text-lg leading-relaxed mb-6 md:mb-8 text-right font-hebrew">
                     {selectedProject.details || selectedProject.description}
@@ -500,7 +426,7 @@ const ProjectsSection = () => {
                           className="px-3 md:px-4 py-1 md:py-2 bg-gradient-to-r from-cyan-50 to-blue-50 text-cyan-700 rounded-full border border-cyan-200/70 font-medium font-hebrew text-sm md:text-base"
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.3, delay: idx * 0.05 }}
+                          transition={{ duration: 0.2, delay: idx * 0.03 }}
                           whileHover={{ scale: 1.05, backgroundColor: "#e0f7fa" }}
                         >
                           {tech}
@@ -511,7 +437,6 @@ const ProjectsSection = () => {
                 </div>
               </motion.div>
             </motion.div>
-            </>
           )}
         </AnimatePresence>
       </div>
