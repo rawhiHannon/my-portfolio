@@ -271,7 +271,7 @@ const HeroSection = () => {
                 <div className="absolute inset-0 -z-10 overflow-hidden pointer-events-none">
                   <video
                     className="w-full h-full object-cover opacity-20"
-                    style={{ objectPosition: '50% 10%' }}
+                    style={{ objectPosition: '70% 20%' }}
                     src="/videos/cranes-cinstructions.mp4"
                     autoPlay
                     muted
