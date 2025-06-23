@@ -266,7 +266,7 @@ const HeroSection = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1.8 }}
               >
-                <button
+                <motion.button
                   onClick={scrollToProjects}
                   className="group relative px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold rounded-full overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-cyan-500/25"
                   whileHover={{ scale: 1.05 }}
@@ -277,16 +277,16 @@ const HeroSection = () => {
                     <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                   </span>
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                </button>
+                </motion.button>
 
-                <button
+                <motion.button
                   onClick={scrollToContact}
                   className="px-8 py-4 border-2 border-cyan-500 text-cyan-600 font-semibold rounded-full hover:bg-cyan-500 hover:text-white transition-all duration-300 shadow-md"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
                   {t('hero.contact')}
-                </button>
+                </motion.button>
               </motion.div>
 
             {/* Slogan */}

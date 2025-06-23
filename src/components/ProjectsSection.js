@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { ExternalLink, Tag, X, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -9,12 +9,16 @@ const ProjectsSection = () => {
   const { t, isRTL } = useLanguage();
   const [ref, inView] = useInView({ threshold: 0.1, triggerOnce: true });
   const [selectedProject, setSelectedProject] = useState(null);
-  const [currentIndex, setCurrentIndex] = useState(0);
 
+  // Desktop carousel state
+  const itemsPerPage = 4;
+  const [currentPage, setCurrentPage] = useState(0);
+  const totalPages = Math.ceil(portfolioData.projects.length / itemsPerPage);
+  
   // Mobile carousel state
   const [mobileCurrentIndex, setMobileCurrentIndex] = useState(0);
 
-  // Project images mapping
+  // Project images mapping with modern fallback
   const getProjectImage = (id) => {
     const images = {
       1: '/1.jpg',
@@ -26,11 +30,6 @@ const ProjectsSection = () => {
     };
     return images[id] || images[1];
   };
-
-  // Desktop carousel - Show 4 items at a time, navigate by changing the slice
-  const itemsPerPage = 4;
-  const [currentPage, setCurrentPage] = useState(0);
-  const totalPages = Math.ceil(portfolioData.projects.length / itemsPerPage);
   
   // Get current projects to display on desktop
   const getCurrentProjects = () => {
@@ -60,41 +59,51 @@ const ProjectsSection = () => {
     setMobileCurrentIndex((prev) => (prev - 1 + portfolioData.projects.length) % portfolioData.projects.length);
   };
 
+  // Project emoji icons
+  const getProjectEmoji = (id) => {
+    const icons = {
+      1: '🏢',
+      2: '🏠',
+      3: '🔧',
+      4: '🏗️',
+      5: '🌉',
+      6: '⚡'
+    };
+    return icons[id] || '🏗️';
+  };
+
   return (
     <section
       id="projects"
-      className="relative min-h-screen py-24 md:py-24 pt-32 md:pt-32 bg-gradient-to-b from-gray-50 via-white to-gray-100 overflow-hidden"
+      className="relative min-h-screen py-24 md:py-32 bg-gradient-to-b from-gray-50 via-white to-gray-100 overflow-hidden"
     >
-      {/* Background Elements */}
-      <div className="absolute inset-0 w-full h-full">
-        <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-purple-500/15 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/3 left-1/4 w-96 h-96 bg-cyan-500/15 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-blue-500/10 rounded-full blur-2xl animate-pulse" />
-        <div className="absolute top-20 right-20 w-32 h-32 bg-cyan-400/20 rounded-full blur-xl animate-bounce" />
-        <div
-          className="absolute bottom-20 left-20 w-24 h-24 bg-blue-400/25 rounded-full blur-lg animate-bounce"
-          style={{ animationDelay: '1s' }}
+      {/* Modern Animated Background */}
+      <div className="absolute inset-0 w-full h-full opacity-60">
+        <div className="absolute top-1/3 right-1/4 w-[30rem] h-[30rem] bg-purple-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '8s' }} />
+        <div className="absolute bottom-1/3 left-1/4 w-[30rem] h-[30rem] bg-cyan-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '10s' }} />
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[20rem] h-[20rem] bg-blue-500/5 rounded-full blur-2xl animate-pulse" style={{ animationDuration: '12s' }} />
+        <div className="absolute -bottom-20 right-20 w-[40rem] h-[40rem] bg-emerald-400/5 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '15s' }} />
+        <div 
+          className="absolute -top-20 -left-20 w-[40rem] h-[40rem] bg-blue-400/5 rounded-full blur-3xl" 
+          style={{ animationDuration: '20s', animation: 'ping 25s cubic-bezier(0, 0, 0.2, 1) infinite' }} 
         />
-        <div className="absolute top-1/3 right-1/3 w-16 h-16 bg-indigo-400/30 rounded-full blur-md animate-ping" />
-        <div
-          className="absolute bottom-1/3 left-1/2 w-20 h-20 bg-purple-400/20 rounded-full blur-lg animate-ping"
-          style={{ animationDelay: '2s' }}
-        />
+        <div className="absolute top-1/4 left-1/3 w-4 h-4 bg-cyan-400 rounded-full blur-sm animate-ping" style={{ animationDelay: '3s', animationDuration: '5s' }} />
+        <div className="absolute bottom-1/4 right-1/3 w-3 h-3 bg-purple-400 rounded-full blur-sm animate-ping" style={{ animationDelay: '1s', animationDuration: '4s' }} />
       </div>
   
       <div
         ref={ref}
         className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
       >
-        {/* Header */}
+        {/* Header with improved animations */}
         <motion.div
-          className="text-center mb-12"
+          className="text-center mb-16"
           initial={{ opacity: 0, y: 50 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8 }}
         >
           <motion.h2
-            className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 font-hebrew"
+            className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 font-hebrew bg-clip-text text-transparent bg-gradient-to-r from-cyan-600 to-blue-700"
             initial={{ opacity: 0, scale: 0.8 }}
             animate={inView ? { opacity: 1, scale: 1 } : {}}
             transition={{ duration: 0.8, delay: 0.2 }}
@@ -102,7 +111,7 @@ const ProjectsSection = () => {
             {t('projects.title')}
           </motion.h2>
           <motion.p
-            className="text-xl text-gray-600 max-w-3xl mx-auto font-hebrew"
+            className="text-xl text-gray-600 max-w-2xl mx-auto font-hebrew"
             initial={{ opacity: 0 }}
             animate={inView ? { opacity: 1 } : {}}
             transition={{ duration: 0.8, delay: 0.4 }}
@@ -111,61 +120,60 @@ const ProjectsSection = () => {
           </motion.p>
         </motion.div>
   
-        {/* Desktop Carousel */}
+        {/* Desktop Carousel with improved design */}
         <div className="relative hidden md:block">
           {currentPage > 0 && (
             <button
               onClick={goToPrevPage}
-              className="absolute left-1 top-1/2 transform -translate-y-1/2 z-30 p-3 bg-white/90 hover:bg-white text-gray-800 rounded-full shadow-xl hover:shadow-2xl transition-all duration-200 hover:scale-110 border border-gray-200"
+              className="absolute -left-2 top-1/2 transform -translate-y-1/2 z-30 p-3.5 bg-white/80 hover:bg-white text-gray-800 rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-110 border border-gray-200/50 backdrop-blur-md group"
+              aria-label="Previous page"
             >
-              <ChevronLeft size={24} />
+              <ChevronLeft size={24} className="group-hover:text-cyan-600 transition-colors" />
             </button>
           )}
           {currentPage < totalPages - 1 && (
             <button
               onClick={goToNextPage}
-              className="absolute right-1 top-1/2 transform -translate-y-1/2 z-30 p-3 bg-white/90 hover:bg-white text-gray-800 rounded-full shadow-xl hover:shadow-2xl transition-all duration-200 hover:scale-110 border border-gray-200"
+              className="absolute -right-2 top-1/2 transform -translate-y-1/2 z-30 p-3.5 bg-white/80 hover:bg-white text-gray-800 rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-110 border border-gray-200/50 backdrop-blur-md group"
+              aria-label="Next page"
             >
-              <ChevronRight size={24} />
+              <ChevronRight size={24} className="group-hover:text-cyan-600 transition-colors" />
             </button>
           )}
   
           <div className="px-16">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {getCurrentProjects().map((project) => (
-                <div key={project.id} className="w-full">
+                <motion.div 
+                  key={project.id} 
+                  className="w-full"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.1 * (project.id % 4) }}
+                >
                   <div
-                    className="cursor-pointer group transition-all duration-200"
+                    className="cursor-pointer group transition-all duration-300"
                     onClick={() => setSelectedProject(project)}
                   >
-                    <div className="relative overflow-hidden rounded-2xl bg-white/90 backdrop-blur-xl border border-gray-200/50 hover:border-cyan-400/50 transition-all duration-200 h-96 flex flex-col shadow-xl shadow-gray-900/5 hover:shadow-2xl hover:shadow-cyan-500/10">
+                    <div className="relative overflow-hidden rounded-2xl bg-white/90 backdrop-blur-xl border border-gray-200/40 hover:border-cyan-400/60 transition-all duration-300 h-[26rem] flex flex-col shadow-lg shadow-gray-900/5 hover:shadow-2xl hover:shadow-cyan-500/10 hover:-translate-y-1">
                       <div className="relative h-48 overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 mix-blend-overlay z-10" />
                         <img
                           src={getProjectImage(project.id)}
                           alt={project.title}
-                          className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-110"
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                           onError={(e) => {
                             e.target.style.display = 'none';
                             e.target.nextSibling.style.display = 'flex';
                           }}
                         />
                         <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 hidden items-center justify-center text-6xl">
-                          {(() => {
-                            const icons = {
-                              1: '🏢',
-                              2: '🏠',
-                              3: '🔧',
-                              4: '🏗️',
-                              5: '🌉',
-                              6: '⚡'
-                            };
-                            return icons[project.id] || '🏗️';
-                          })()}
+                          {getProjectEmoji(project.id)}
                         </div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
-                        <div className="absolute inset-0 bg-cyan-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-                          <div className="flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur-md rounded-full text-gray-800 font-medium font-hebrew shadow-lg">
-                            <ExternalLink size={18} />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                        <div className="absolute inset-0 bg-cyan-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-20">
+                          <div className="flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur-md rounded-full text-gray-800 font-medium font-hebrew shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                            <ExternalLink size={18} className="text-cyan-500" />
                             {t('projects.viewProject')}
                           </div>
                         </div>
@@ -175,46 +183,47 @@ const ProjectsSection = () => {
                       </div>
   
                       <div className="p-6 flex-1 flex flex-col bg-white">
-                        <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-cyan-600 transition-colors duration-200 text-right font-hebrew">
+                        <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-cyan-600 transition-colors duration-300 text-right font-hebrew">
                           {project.title}
                         </h3>
-                        <p className="text-gray-600 mb-4 text-right font-hebrew flex-1 line-clamp-3">
+                        <p className="text-gray-600 mb-5 text-right font-hebrew flex-1 line-clamp-3">
                           {project.description}
                         </p>
                         <div className="flex flex-wrap gap-2 justify-end">
-                          {project.technologies.slice(0, 2).map((tech, idx) => (
+                          {project.technologies.slice(0, 3).map((tech, idx) => (
                             <span
                               key={idx}
-                              className="px-3 py-1 bg-cyan-50 text-cyan-700 text-xs font-medium rounded-full border border-cyan-200 font-hebrew"
+                              className="px-3 py-1 bg-gradient-to-r from-cyan-50 to-blue-50 text-cyan-700 text-xs font-medium rounded-full border border-cyan-200/70 font-hebrew"
                             >
                               {tech}
                             </span>
                           ))}
-                          {project.technologies.length > 2 && (
+                          {project.technologies.length > 3 && (
                             <span className="px-3 py-1 text-gray-500 text-xs font-hebrew">
-                              +{project.technologies.length - 2}
+                              +{project.technologies.length - 3}
                             </span>
                           )}
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>
   
           {totalPages > 1 && (
-            <div className="flex justify-center mt-8 gap-3">
+            <div className="flex justify-center mt-10 gap-3">
               {Array.from({ length: totalPages }, (_, i) => (
                 <button
                   key={i}
                   onClick={() => setCurrentPage(i)}
-                  className={`w-4 h-4 rounded-full transition-all duration-200 ${
+                  className={`w-4 h-4 rounded-full transition-all duration-300 ${
                     i === currentPage
-                      ? 'bg-cyan-500 scale-125 shadow-lg'
+                      ? 'bg-gradient-to-r from-cyan-500 to-blue-600 scale-125 shadow-lg'
                       : 'bg-gray-300 hover:bg-gray-400'
                   }`}
+                  aria-label={`Go to page ${i + 1}`}
                 />
               ))}
             </div>
@@ -226,58 +235,52 @@ const ProjectsSection = () => {
           </div>
         </div>
   
-        {/* Mobile Carousel */}
+        {/* Mobile Carousel with improved spacing for arrows */}
         <div className="md:hidden relative">
           <button
             onClick={prevProject}
-            className="absolute left-2 top-1/2 transform -translate-y-1/2 z-30 p-3 bg-white/90 hover:bg-white text-gray-800 rounded-full shadow-xl hover:shadow-2xl transition-all duration-200 hover:scale-110 border border-gray-200"
+            className="absolute -left-2 top-1/2 transform -translate-y-1/2 z-30 p-3 bg-white/80 hover:bg-white text-gray-800 rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-110 border border-gray-200/50 backdrop-blur-md group"
+            aria-label="Previous project"
           >
-            <ChevronLeft size={20} />
+            <ChevronLeft size={20} className="group-hover:text-cyan-600 transition-colors" />
           </button>
           <button
             onClick={nextProject}
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 z-30 p-3 bg-white/90 hover:bg-white text-gray-800 rounded-full shadow-xl hover:shadow-2xl transition-all duration-200 hover:scale-110 border border-gray-200"
+            className="absolute -right-2 top-1/2 transform -translate-y-1/2 z-30 p-3 bg-white/80 hover:bg-white text-gray-800 rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-110 border border-gray-200/50 backdrop-blur-md group"
+            aria-label="Next project"
           >
-            <ChevronRight size={20} />
+            <ChevronRight size={20} className="group-hover:text-cyan-600 transition-colors" />
           </button>
   
-          <div className="px-12">
+          <div className="px-14 mx-auto max-w-sm">
             <motion.div
               key={mobileCurrentIndex}
-              className="cursor-pointer group transition-all duration-200"
+              className="cursor-pointer group transition-all duration-300"
               onClick={() => setSelectedProject(portfolioData.projects[mobileCurrentIndex])}
               initial={{ opacity: 0, x: 50 }}
               animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -50 }}
               transition={{ duration: 0.5 }}
             >
-              <div className="relative overflow-hidden rounded-2xl bg-white/90 backdrop-blur-xl border border-gray-200/50 hover:border-cyan-400/50 transition-all duration-200 h-96 flex flex-col shadow-xl shadow-gray-900/5 hover:shadow-2xl hover:shadow-cyan-500/10">
+              <div className="relative overflow-hidden rounded-2xl bg-white/90 backdrop-blur-xl border border-gray-200/40 hover:border-cyan-400/60 transition-all duration-300 h-[26rem] flex flex-col shadow-lg shadow-gray-900/5 hover:shadow-2xl hover:shadow-cyan-500/10">
                 <div className="relative h-48 overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 mix-blend-overlay z-10" />
                   <img
                     src={getProjectImage(portfolioData.projects[mobileCurrentIndex].id)}
                     alt={portfolioData.projects[mobileCurrentIndex].title}
-                    className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-110"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     onError={(e) => {
                       e.target.style.display = 'none';
                       e.target.nextSibling.style.display = 'flex';
                     }}
                   />
                   <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 hidden items-center justify-center text-6xl">
-                    {(() => {
-                      const icons = {
-                        1: '🏢',
-                        2: '🏠',
-                        3: '🔧',
-                        4: '🏗️',
-                        5: '🌉',
-                        6: '⚡'
-                      };
-                      return icons[portfolioData.projects[mobileCurrentIndex].id] || '🏗️';
-                    })()}
+                    {getProjectEmoji(portfolioData.projects[mobileCurrentIndex].id)}
                   </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
-                  <div className="absolute inset-0 bg-cyan-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
-                    <div className="flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur-md rounded-full text-gray-800 font-medium font-hebrew shadow-lg">
-                      <ExternalLink size={18} />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                  <div className="absolute inset-0 bg-cyan-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-20">
+                    <div className="flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur-md rounded-full text-gray-800 font-medium font-hebrew shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                      <ExternalLink size={18} className="text-cyan-500" />
                       {t('projects.viewProject')}
                     </div>
                   </div>
@@ -287,24 +290,24 @@ const ProjectsSection = () => {
                 </div>
   
                 <div className="p-6 flex-1 flex flex-col bg-white">
-                  <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-cyan-600 transition-colors duration-200 text-right font-hebrew">
+                  <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-cyan-600 transition-colors duration-300 text-right font-hebrew">
                     {portfolioData.projects[mobileCurrentIndex].title}
                   </h3>
-                  <p className="text-gray-600 mb-4 text-right font-hebrew flex-1 line-clamp-3">
+                  <p className="text-gray-600 mb-5 text-right font-hebrew flex-1 line-clamp-3">
                     {portfolioData.projects[mobileCurrentIndex].description}
                   </p>
                   <div className="flex flex-wrap gap-2 justify-end">
-                    {portfolioData.projects[mobileCurrentIndex].technologies.slice(0, 2).map((tech, idx) => (
+                    {portfolioData.projects[mobileCurrentIndex].technologies.slice(0, 3).map((tech, idx) => (
                       <span
                         key={idx}
-                        className="px-3 py-1 bg-cyan-50 text-cyan-700 text-xs font-medium rounded-full border border-cyan-200 font-hebrew"
+                        className="px-3 py-1 bg-gradient-to-r from-cyan-50 to-blue-50 text-cyan-700 text-xs font-medium rounded-full border border-cyan-200/70 font-hebrew"
                       >
                         {tech}
                       </span>
                     ))}
-                    {portfolioData.projects[mobileCurrentIndex].technologies.length > 2 && (
+                    {portfolioData.projects[mobileCurrentIndex].technologies.length > 3 && (
                       <span className="px-3 py-1 text-gray-500 text-xs font-hebrew">
-                        +{portfolioData.projects[mobileCurrentIndex].technologies.length - 2}
+                        +{portfolioData.projects[mobileCurrentIndex].technologies.length - 3}
                       </span>
                     )}
                   </div>
@@ -313,14 +316,17 @@ const ProjectsSection = () => {
             </motion.div>
           </div>
   
-          <div className="flex justify-center mt-6 gap-2">
+          <div className="flex justify-center mt-8 gap-2">
             {portfolioData.projects.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => setMobileCurrentIndex(idx)}
-                className={`w-3 h-3 rounded-full transition-all duration-200 ${
-                  idx === mobileCurrentIndex ? 'bg-cyan-500 scale-125 shadow-lg' : 'bg-gray-300 hover:bg-gray-400'
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  idx === mobileCurrentIndex 
+                    ? 'bg-gradient-to-r from-cyan-500 to-blue-600 scale-125 shadow-lg' 
+                    : 'bg-gray-300 hover:bg-gray-400'
                 }`}
+                aria-label={`Go to project ${idx + 1}`}
               />
             ))}
           </div>
@@ -331,45 +337,41 @@ const ProjectsSection = () => {
           </div>
         </div>
   
-        {/* Project Modal */}
+        {/* Project Modal with improved design */}
         <AnimatePresence>
           {selectedProject && (
             <motion.div
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+              className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setSelectedProject(null)}
             >
               <motion.div
-                className="max-w-4xl w-full bg-white rounded-2xl overflow-hidden border border-gray-200 shadow-2xl"
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.8, opacity: 0 }}
+                className="max-w-4xl w-full bg-white rounded-2xl overflow-hidden border border-gray-200/50 shadow-2xl"
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                transition={{ type: "spring", damping: 25, stiffness: 300 }}
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Modal Header */}
                 <div className="relative">
                   <div className="h-80 overflow-hidden">
                     <img
-                      src={{
-                        1: '/1.jpg',
-                        2: '/2.jpg',
-                        3: '/3.jpg',
-                        4: '/4.jpg',
-                        5: '/5.jpg',
-                        6: '/6.jpg'
-                      }[selectedProject.id] || '/1.jpg'}
+                      src={getProjectImage(selectedProject.id)}
                       alt={selectedProject.title}
                       className="w-full h-full object-cover"
                     />
+                    <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 mix-blend-overlay" />
                   </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
                   <button
                     onClick={() => setSelectedProject(null)}
-                    className="absolute top-4 left-4 p-2 bg-white/90 hover:bg-white text-gray-800 rounded-full transition-colors shadow-lg"
+                    className="absolute top-4 left-4 p-2 bg-white/90 hover:bg-white text-gray-800 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-110 backdrop-blur-md"
+                    aria-label="Close modal"
                   >
-                    <X size={24} />
+                    <X size={24} className="hover:text-cyan-600 transition-colors" />
                   </button>
                   <div className="absolute bottom-6 right-6 left-6">
                     <h3 className="text-3xl font-bold text-white mb-2 text-right font-hebrew">
@@ -395,14 +397,35 @@ const ProjectsSection = () => {
                     </h4>
                     <div className="flex flex-wrap gap-3 justify-end">
                       {selectedProject.technologies.map((tech, idx) => (
-                        <span
+                        <motion.span
                           key={idx}
-                          className="px-4 py-2 bg-gradient-to-r from-cyan-50 to-blue-50 text-cyan-700 rounded-full border border-cyan-200 font-medium font-hebrew"
+                          className="px-4 py-2 bg-gradient-to-r from-cyan-50 to-blue-50 text-cyan-700 rounded-full border border-cyan-200/70 font-medium font-hebrew"
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.3, delay: idx * 0.05 }}
+                          whileHover={{ scale: 1.05, backgroundColor: "#e0f7fa" }}
                         >
                           {tech}
-                        </span>
+                        </motion.span>
                       ))}
                     </div>
+                  </div>
+                  
+                  {/* Add links or buttons */}
+                  <div className="flex justify-end mt-8 gap-4">
+                    <button 
+                      className="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-full font-medium transition-all duration-300 font-hebrew flex items-center gap-2"
+                      onClick={() => setSelectedProject(null)}
+                    >
+                      {t('projects.close')}
+                    </button>
+                    <a 
+                      href="#" 
+                      className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white rounded-full font-medium transition-all duration-300 font-hebrew flex items-center gap-2 shadow-lg hover:shadow-xl hover:shadow-cyan-500/20"
+                    >
+                      <ExternalLink size={18} />
+                      {t('projects.visitProject')}
+                    </a>
                   </div>
                 </div>
               </motion.div>
@@ -411,8 +434,7 @@ const ProjectsSection = () => {
         </AnimatePresence>
       </div>
     </section>
-  )
-  
+  );
 };
 
 export default ProjectsSection;

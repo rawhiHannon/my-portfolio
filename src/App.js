@@ -32,6 +32,8 @@ function App() {
   const observerRef = useRef(null);
   const scrollTimeoutRef = useRef(null);
   const lastUpdateTimeRef = useRef(0);
+  // Store positions in a ref to avoid state updates during calculations
+  const positionsRef = useRef({});
 
   // Function to navigate to a specific section
   const navigateToSection = (sectionName) => {
@@ -64,7 +66,7 @@ function App() {
     sections
   };
 
-  // Function to calculate section positions
+  // Function to calculate section positions - modified to use ref
   const updateSectionPositions = () => {
     const positions = {};
     sections.forEach(sectionId => {
@@ -80,12 +82,19 @@ function App() {
         };
       }
     });
+    
+    // Store in ref first
+    positionsRef.current = positions;
+    
+    // Only update state if needed (once calculations are complete)
+    // This is done outside of calculation functions to avoid render loops
     setSectionPositions(positions);
+    
     return positions;
   };
 
   // Function to determine current section based on scroll position
-  const getCurrentSectionFromScroll = (positions = sectionPositions) => {
+  const getCurrentSectionFromScroll = (positions = positionsRef.current) => {
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
     const windowHeight = window.innerHeight;
     const viewportCenter = scrollTop + windowHeight / 2;
@@ -134,7 +143,9 @@ function App() {
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
     const windowHeight = window.innerHeight;
     const currentSectionId = sections[currentSection];
-    const currentPosition = sectionPositions[currentSectionId];
+    // Use the ref version for calculations to avoid re-renders
+    const positions = positionsRef.current;
+    const currentPosition = positions[currentSectionId];
     
     if (!currentPosition) return false;
 
@@ -143,7 +154,7 @@ function App() {
       // and at least 20% of next section is visible
       const currentSectionProgress = (scrollTop - currentPosition.top) / Math.max(currentPosition.height - windowHeight, 1);
       const nextSectionId = sections[targetSectionIndex];
-      const nextPosition = sectionPositions[nextSectionId];
+      const nextPosition = positions[nextSectionId];
       
       if (!nextPosition) return false;
       
@@ -163,7 +174,7 @@ function App() {
     } else {
       // Scrolling up - mirror the logic of scrolling down
       const prevSectionId = sections[targetSectionIndex];
-      const prevPosition = sectionPositions[prevSectionId];
+      const prevPosition = positions[prevSectionId];
       
       if (!prevPosition) return false;
       
@@ -203,6 +214,7 @@ function App() {
       if (now - lastUpdateTimeRef.current > 100) { // Throttle updates
         lastUpdateTimeRef.current = now;
         requestAnimationFrame(() => {
+          // Update positions in ref
           const positions = updateSectionPositions();
           const newCurrentSection = getCurrentSectionFromScroll(positions);
           
@@ -228,11 +240,12 @@ function App() {
     };
   }, [sections, currentSection, isScrolling]);
 
+  // Initial setup and event listeners
   useEffect(() => {
     setIsLoaded(true);
 
     // Initial setup
-    setTimeout(() => {
+    const initialSetupTimeout = setTimeout(() => {
       updateSectionPositions();
     }, 100);
 
@@ -320,8 +333,14 @@ function App() {
     };
 
     const handleResize = () => {
-      // Update positions on resize
-      setTimeout(updateSectionPositions, 100);
+      // Throttle resize updates
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+      
+      scrollTimeoutRef.current = setTimeout(() => {
+        updateSectionPositions();
+      }, 100);
     };
 
     // Add event listeners
@@ -331,6 +350,7 @@ function App() {
 
     // Cleanup
     return () => {
+      clearTimeout(initialSetupTimeout);
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('wheel', handleWheel);
       window.removeEventListener('resize', handleResize);
@@ -338,7 +358,7 @@ function App() {
         clearTimeout(scrollTimeoutRef.current);
       }
     };
-  }, [isScrolling, currentSection, sections, sectionPositions]);
+  }, [isScrolling, currentSection, sections]); // Removed sectionPositions from deps
 
   const scrollToTop = () => {
     navigateToSection('home');
