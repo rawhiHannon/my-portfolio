@@ -7,6 +7,7 @@ import { useSectionContext } from '../App';
 const ModernHeader = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [activeSection, setActiveSection] = useState('home');
   const { t, isRTL } = useLanguage();
   const { currentSection, navigateToSection, sections } = useSectionContext();
 
@@ -19,6 +20,13 @@ const ModernHeader = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Update activeSection when currentSection changes
+  useEffect(() => {
+    if (currentSection) {
+      setActiveSection(currentSection);
+    }
+  }, [currentSection]);
+
   const navigation = [
     { key: 'home', href: '#home' },
     { key: 'services', href: '#services' },
@@ -29,6 +37,9 @@ const ModernHeader = () => {
   const scrollToSection = (href) => {
     const sectionName = href.replace('#', '');
     setIsMenuOpen(false);
+    
+    // Immediately update active section for visual feedback
+    setActiveSection(sectionName);
     
     // Add small delay to prevent flickering
     setTimeout(() => {
@@ -48,7 +59,7 @@ const ModernHeader = () => {
 
   return (
     <motion.header
-      className={`fixed top-0 w-full z-50 transition-all duration-500 ${
+      className={`fixed top-0 w-full z-40 transition-all duration-500 ${
         scrolled ? 'bg-black/95 backdrop-blur-xl border-b border-cyan-500/30' : 'bg-black/80 backdrop-blur-md'
       }`}
       initial={{ y: -100 }}
@@ -80,39 +91,60 @@ const ModernHeader = () => {
           </motion.div>
   
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="hidden md:flex items-center gap-2">
             {navigation.map((item) => (
-              <button
+              <motion.button
                 key={item.key}
                 onClick={() => scrollToSection(item.href)}
-                className={`relative px-6 py-3 font-medium transition-all duration-200 rounded-lg overflow-hidden group ${
-                  currentSection === item.key 
-                    ? 'text-white bg-cyan-500/20 border border-cyan-400/50' 
-                    : 'text-gray-300 hover:text-white hover:bg-white/10'
-                }`}
+                className="relative px-5 py-2.5 font-medium text-sm tracking-wide transition-all duration-300 rounded-full overflow-hidden group"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
-                {/* Simple hover effect */}
-                <div className="absolute inset-0 bg-cyan-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                {/* Background layers */}
+                <div className={`absolute inset-0 transition-all duration-300 ${
+                  activeSection === item.key 
+                    ? 'bg-gradient-to-r from-cyan-500/30 to-blue-500/30' 
+                    : 'bg-white/5 hover:bg-white/10'
+                }`} />
+                
+                {/* Animated background on hover */}
+                <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-all duration-300 scale-x-0 group-hover:scale-x-100 origin-left" />
+                
+                {/* Glow effect */}
+                <div className={`absolute inset-0 transition-all duration-300 ${
+                  activeSection === item.key 
+                    ? 'shadow-lg shadow-cyan-500/25' 
+                    : 'shadow-none group-hover:shadow-md group-hover:shadow-cyan-500/20'
+                }`} />
                 
                 {/* Text */}
-                <span className="relative z-10">{t(`navigation.${item.key}`)}</span>
-                
-                {/* Active indicator */}
-                {currentSection === item.key && (
-                  <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-1/2 h-0.5 bg-cyan-400" />
-                )}
-              </button>
+                <span className={`relative z-10 transition-all duration-300 ${
+                  activeSection === item.key 
+                    ? 'text-white drop-shadow-sm' 
+                    : 'text-gray-300 group-hover:text-white'
+                }`}>
+                  {t(`navigation.${item.key}`)}
+                </span>
+              </motion.button>
             ))}
           </nav>
   
           {/* Mobile Menu Button */}
           <div className="md:hidden">
-            <button
+            <motion.button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="p-2 text-white hover:bg-white/10 rounded-lg transition-colors duration-200"
+              className="p-3 text-white bg-white/10 hover:bg-white/20 rounded-full transition-all duration-200 backdrop-blur-sm border border-white/20"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
+              <motion.div
+                initial={false}
+                animate={{ rotate: isMenuOpen ? 180 : 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
+              </motion.div>
+            </motion.button>
           </div>
         </div>
   
@@ -120,25 +152,29 @@ const ModernHeader = () => {
         <AnimatePresence>
           {isMenuOpen && (
             <motion.nav
-              className="md:hidden py-4 border-t border-gray-800 bg-black/95 backdrop-blur-xl"
+              className="md:hidden py-4 border-t border-gray-800/50 bg-black/95 backdrop-blur-xl"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.2 }}
             >
-              <div className="space-y-2">
+              <div className="space-y-1">
                 {navigation.map((item, index) => (
-                  <button
+                  <motion.button
                     key={item.key}
                     onClick={() => scrollToSection(item.href)}
-                    className={`block w-full py-3 px-4 transition-colors duration-200 text-lg font-medium text-right ${
-                      currentSection === item.key 
-                        ? 'text-cyan-400 bg-cyan-500/10 border-r-2 border-cyan-400' 
-                        : 'text-gray-300 hover:text-cyan-400 hover:bg-white/5'
+                    className={`block w-full py-3 px-4 transition-all duration-300 text-lg font-medium text-right rounded-lg mx-2 ${
+                      activeSection === item.key 
+                        ? 'text-white bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border-r-2 border-cyan-400 shadow-lg shadow-cyan-500/10' 
+                        : 'text-gray-300 hover:text-white hover:bg-white/10'
                     }`}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    whileHover={{ x: 5 }}
                   >
                     {t(`navigation.${item.key}`)}
-                  </button>
+                  </motion.button>
                 ))}
               </div>
             </motion.nav>

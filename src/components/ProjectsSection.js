@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { ExternalLink, Tag, X, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -17,6 +17,95 @@ const ProjectsSection = () => {
   
   // Mobile carousel state
   const [mobileCurrentIndex, setMobileCurrentIndex] = useState(0);
+
+  // Store scroll position when modal opens
+  const [savedScrollPosition, setSavedScrollPosition] = useState(0);
+
+  // Add effect to prevent body scroll when modal is open
+  React.useEffect(() => {
+    if (selectedProject) {
+      // Store current scroll position IMMEDIATELY
+      const scrollY = window.scrollY;
+      setSavedScrollPosition(scrollY);
+      
+      // Immediately prevent any scroll-related interference from the app
+      document.body.style.pointerEvents = 'none';
+      
+      // Use requestAnimationFrame to ensure we capture the position before any other effects
+      requestAnimationFrame(() => {
+        // Disable scrolling on the body and html
+        document.body.style.position = 'fixed';
+        document.body.style.top = `-${scrollY}px`;
+        document.body.style.left = '0';
+        document.body.style.right = '0';
+        document.body.style.overflow = 'hidden';
+        document.documentElement.style.overflow = 'hidden';
+        document.body.style.width = '100%';
+        
+        // Also prevent touch scrolling on mobile
+        document.body.style.touchAction = 'none';
+        document.documentElement.style.touchAction = 'none';
+        
+        // Re-enable pointer events after preventing scroll
+        setTimeout(() => {
+          document.body.style.pointerEvents = '';
+        }, 100);
+      });
+    } else {
+      // When closing modal, restore everything
+      const scrollPosition = savedScrollPosition;
+      
+      // Temporarily disable pointer events to prevent interference
+      document.body.style.pointerEvents = 'none';
+      
+      // Re-enable scrolling
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.overflow = '';
+      document.body.style.width = '';
+      document.documentElement.style.overflow = '';
+      document.body.style.touchAction = '';
+      document.documentElement.style.touchAction = '';
+      
+      // Restore scroll position immediately and repeatedly
+      if (scrollPosition !== 0) {
+        // Immediate restore
+        window.scrollTo(0, scrollPosition);
+        
+        // Use requestAnimationFrame for smoother restoration
+        requestAnimationFrame(() => {
+          window.scrollTo(0, scrollPosition);
+          
+          // Additional attempts to ensure position is maintained
+          setTimeout(() => window.scrollTo(0, scrollPosition), 0);
+          setTimeout(() => window.scrollTo(0, scrollPosition), 10);
+          setTimeout(() => window.scrollTo(0, scrollPosition), 50);
+          setTimeout(() => window.scrollTo(0, scrollPosition), 100);
+        });
+      }
+      
+      // Re-enable pointer events after restoration
+      setTimeout(() => {
+        document.body.style.pointerEvents = '';
+      }, 200);
+    }
+
+    // Cleanup function to restore scrolling when component unmounts
+    return () => {
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.overflow = '';
+      document.body.style.width = '';
+      document.documentElement.style.overflow = '';
+      document.body.style.touchAction = '';
+      document.documentElement.style.touchAction = '';
+      document.body.style.pointerEvents = '';
+    };
+  }, [selectedProject]);
 
   // Project images mapping with modern fallback
   const getProjectImage = (id) => {
@@ -156,7 +245,7 @@ const ProjectsSection = () => {
                     onClick={() => setSelectedProject(project)}
                   >
                     <div className="relative overflow-hidden rounded-2xl bg-white/90 backdrop-blur-xl border border-gray-200/40 hover:border-cyan-400/60 transition-all duration-300 h-[26rem] flex flex-col shadow-lg shadow-gray-900/5 hover:shadow-2xl hover:shadow-cyan-500/10 hover:-translate-y-1">
-                      {/* Fixed image container with consistent dimensions */}
+                      {/* Fixed image container with consistent dimensions - REMOVED CATEGORY TAG */}
                       <div className="relative w-full h-48 overflow-hidden bg-gray-100 flex-shrink-0">
                         <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 mix-blend-overlay z-10" />
                         <img
@@ -178,9 +267,6 @@ const ProjectsSection = () => {
                             {t('projects.viewProject')}
                           </div>
                         </div>
-                        <div className="absolute top-4 right-4 px-3 py-1 bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm font-semibold rounded-full font-hebrew shadow-md">
-                          {project.category}
-                        </div>
                       </div>
   
                       <div className="p-6 flex-1 flex flex-col bg-white">
@@ -190,20 +276,8 @@ const ProjectsSection = () => {
                         <p className="text-gray-600 mb-5 text-right font-hebrew flex-1 line-clamp-3">
                           {project.description}
                         </p>
-                        <div className="flex flex-wrap gap-2 justify-end">
-                          {project.technologies.slice(0, 3).map((tech, idx) => (
-                            <span
-                              key={idx}
-                              className="px-3 py-1 bg-gradient-to-r from-cyan-50 to-blue-50 text-cyan-700 text-xs font-medium rounded-full border border-cyan-200/70 font-hebrew"
-                            >
-                              {tech}
-                            </span>
-                          ))}
-                          {project.technologies.length > 3 && (
-                            <span className="px-3 py-1 text-gray-500 text-xs font-hebrew">
-                              +{project.technologies.length - 3}
-                            </span>
-                          )}
+                        <div className="mt-auto">
+                          {/* Empty space - no tags */}
                         </div>
                       </div>
                     </div>
@@ -236,7 +310,7 @@ const ProjectsSection = () => {
           </div>
         </div>
   
-        {/* Mobile Carousel with improved spacing for arrows */}
+        {/* Mobile Carousel with improved spacing for arrows - REMOVED CATEGORY TAG */}
         <div className="md:hidden relative">
           <button
             onClick={prevProject}
@@ -264,7 +338,7 @@ const ProjectsSection = () => {
               transition={{ duration: 0.5 }}
             >
               <div className="relative overflow-hidden rounded-2xl bg-white/90 backdrop-blur-xl border border-gray-200/40 hover:border-cyan-400/60 transition-all duration-300 h-[26rem] flex flex-col shadow-lg shadow-gray-900/5 hover:shadow-2xl hover:shadow-cyan-500/10">
-                {/* Fixed mobile image container */}
+                {/* Fixed mobile image container - REMOVED CATEGORY TAG */}
                 <div className="relative w-full h-48 overflow-hidden bg-gray-100 flex-shrink-0">
                   <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 mix-blend-overlay z-10" />
                   <img
@@ -286,9 +360,6 @@ const ProjectsSection = () => {
                       {t('projects.viewProject')}
                     </div>
                   </div>
-                  <div className="absolute top-4 right-4 px-3 py-1 bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm font-semibold rounded-full font-hebrew shadow-md">
-                    {portfolioData.projects[mobileCurrentIndex].category}
-                  </div>
                 </div>
   
                 <div className="p-6 flex-1 flex flex-col bg-white">
@@ -298,20 +369,8 @@ const ProjectsSection = () => {
                   <p className="text-gray-600 mb-5 text-right font-hebrew flex-1 line-clamp-3">
                     {portfolioData.projects[mobileCurrentIndex].description}
                   </p>
-                  <div className="flex flex-wrap gap-2 justify-end">
-                    {portfolioData.projects[mobileCurrentIndex].technologies.slice(0, 3).map((tech, idx) => (
-                      <span
-                        key={idx}
-                        className="px-3 py-1 bg-gradient-to-r from-cyan-50 to-blue-50 text-cyan-700 text-xs font-medium rounded-full border border-cyan-200/70 font-hebrew"
-                      >
-                        {tech}
-                      </span>
-                    ))}
-                    {portfolioData.projects[mobileCurrentIndex].technologies.length > 3 && (
-                      <span className="px-3 py-1 text-gray-500 text-xs font-hebrew">
-                        +{portfolioData.projects[mobileCurrentIndex].technologies.length - 3}
-                      </span>
-                    )}
+                  <div className="mt-auto">
+                    {/* Empty space - no tags */}
                   </div>
                 </div>
               </div>
@@ -339,27 +398,38 @@ const ProjectsSection = () => {
           </div>
         </div>
   
-        {/* Project Modal with improved design */}
+        {/* Project Modal with improved design - FULL SCREEN ON MOBILE starting below header */}
         <AnimatePresence>
           {selectedProject && (
-            <motion.div
-              className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setSelectedProject(null)}
-            >
+            <>
               <motion.div
-                className="max-w-4xl w-full bg-white rounded-2xl overflow-hidden border border-gray-200/50 shadow-2xl"
-                initial={{ scale: 0.9, opacity: 0, y: 20 }}
-                animate={{ scale: 1, opacity: 1, y: 0 }}
-                exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                onClick={(e) => e.stopPropagation()}
+                className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[9999] flex items-center justify-center md:p-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={() => setSelectedProject(null)}
+                style={{ 
+                  position: 'fixed', 
+                  top: 0, 
+                  left: 0, 
+                  right: 0, 
+                  bottom: 0,
+                  zIndex: 9999
+                }}
               >
+                <motion.div
+                  className="w-full bg-white overflow-hidden border-0 md:border md:border-gray-200/50 shadow-2xl flex flex-col
+                             h-full md:max-w-4xl md:w-full md:h-auto md:rounded-2xl
+                             pt-24 md:pt-0"
+                  initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                  animate={{ scale: 1, opacity: 1, y: 0 }}
+                  exit={{ scale: 0.9, opacity: 0, y: 20 }}
+                  transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                  onClick={(e) => e.stopPropagation()}
+                >
                 {/* Modal Header with fixed image dimensions */}
-                <div className="relative">
-                  <div className="h-80 overflow-hidden bg-gray-100">
+                <div className="relative flex-shrink-0">
+                  <div className="h-60 md:h-80 overflow-hidden bg-gray-100">
                     <img
                       src={getProjectImage(selectedProject.id)}
                       alt={selectedProject.title}
@@ -370,38 +440,41 @@ const ProjectsSection = () => {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
                   <button
                     onClick={() => setSelectedProject(null)}
-                    className="absolute top-4 left-4 p-2 bg-white/90 hover:bg-white text-gray-800 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-110 backdrop-blur-md"
+                    className="absolute top-4 right-4 p-3 bg-white hover:bg-gray-50 text-gray-800 rounded-full transition-all duration-300 shadow-2xl hover:shadow-3xl hover:scale-110 z-50 border-2 border-gray-300"
                     aria-label="Close modal"
                   >
                     <X size={24} className="hover:text-cyan-600 transition-colors" />
                   </button>
                   <div className="absolute bottom-6 right-6 left-6">
-                    <h3 className="text-3xl font-bold text-white mb-2 text-right font-hebrew">
+                    <h3 className="text-2xl md:text-3xl font-bold text-white mb-2 text-right font-hebrew">
                       {selectedProject.title}
                     </h3>
+                    {/* MOVED CATEGORY TAG HERE */}
                     <div className="flex items-center gap-4 text-cyan-300 justify-end">
                       <div className="flex items-center gap-2">
-                        <span className="font-hebrew">{selectedProject.category}</span>
+                        <span className="font-hebrew px-3 py-1 bg-gradient-to-r from-cyan-500/80 to-blue-600/80 text-white text-sm font-semibold rounded-full shadow-md">
+                          {selectedProject.category}
+                        </span>
                         <Tag size={16} />
                       </div>
                     </div>
                   </div>
                 </div>
   
-                {/* Modal Content */}
-                <div className="p-8 bg-white">
-                  <p className="text-gray-700 text-lg leading-relaxed mb-8 text-right font-hebrew">
+                {/* Modal Content - SCROLLABLE ON MOBILE */}
+                <div className="flex-1 overflow-y-auto p-6 md:p-8 bg-white">
+                  <p className="text-gray-700 text-base md:text-lg leading-relaxed mb-6 md:mb-8 text-right font-hebrew">
                     {selectedProject.details || selectedProject.description}
                   </p>
                   <div className="mb-6">
-                    <h4 className="text-xl font-semibold text-gray-900 mb-4 text-right font-hebrew">
+                    <h4 className="text-lg md:text-xl font-semibold text-gray-900 mb-4 text-right font-hebrew">
                       {t('projects.technologies')}
                     </h4>
                     <div className="flex flex-wrap gap-3 justify-end">
                       {selectedProject.technologies.map((tech, idx) => (
                         <motion.span
                           key={idx}
-                          className="px-4 py-2 bg-gradient-to-r from-cyan-50 to-blue-50 text-cyan-700 rounded-full border border-cyan-200/70 font-medium font-hebrew"
+                          className="px-3 md:px-4 py-1 md:py-2 bg-gradient-to-r from-cyan-50 to-blue-50 text-cyan-700 rounded-full border border-cyan-200/70 font-medium font-hebrew text-sm md:text-base"
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.3, delay: idx * 0.05 }}
@@ -412,10 +485,10 @@ const ProjectsSection = () => {
                       ))}
                     </div>
                   </div>
-                  
                 </div>
               </motion.div>
             </motion.div>
+            </>
           )}
         </AnimatePresence>
       </div>
