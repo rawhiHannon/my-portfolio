@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Phone, Mail, User } from 'lucide-react';
+import { ArrowRight, Phone, Mail, User, Linkedin } from 'lucide-react';
 import { useLanguage } from '../hooks/useLanguage';
 import { portfolioData } from '../data/portfolioData';
 
@@ -103,107 +103,262 @@ const HeroSection = () => {
       <div className="relative z-10 max-w-7xl mx-auto px-8 sm:px-6 lg:px-8 py-3">
         <div className="grid lg:grid-cols-2 gap-8 items-center">
           
-          {/* Left Side - Profile Card - Mobile: order-1, Desktop: order-1 */}
+          {/* Mobile: Key Services Highlight - Desktop: Profile Card */}
           <motion.div
             className="relative order-1 lg:order-1"
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <div className="bg-white/80 backdrop-blur-md border border-white/20 rounded-3xl p-7 text-center shadow-[0_8px_32px_rgba(0,0,0,0.12)] shadow-cyan-500/8 max-w-md mx-auto relative overflow-hidden">
-              
-              {/* Subtle gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-b from-white/50 to-transparent pointer-events-none" />
-              
-              <div className="relative z-10">
-                {/* Profile Picture */}
+            {/* Mobile View - Modern Glass Morphism Interface */}
+            <div className="lg:hidden">
+              <motion.div
+                className="space-y-6"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.8, delay: 0.4 }}
+              >
+                {/* Hero Profile Glass Card */}
                 <motion.div
-                  className="relative mx-auto mb-4"
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.4 }}
+                  className="relative bg-white/20 backdrop-blur-2xl border border-white/30 rounded-3xl p-1 shadow-2xl"
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.6, duration: 0.8 }}
                 >
-                  <div className="w-32 h-32 mx-auto relative">
-                    <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 rounded-full border border-white/50 flex items-center justify-center overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.08)]">
-                      <img 
-                        src="/nizar.jpg"
-                        alt="ניזאר סמרי"
-                        className="w-full h-full object-cover rounded-full"
-                        onError={(e) => {
-                          e.target.style.display = 'none';
-                          e.target.nextSibling.style.display = 'flex';
-                        }}
-                      />
-                      <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 rounded-full hidden items-center justify-center">
-                        <User size={44} className="text-gray-500" />
+                  {/* Animated gradient border */}
+                  <div className="absolute -inset-1 bg-gradient-to-r from-gray-400 via-gray-500 to-gray-600 rounded-3xl opacity-20 blur-sm animate-pulse"></div>
+                  
+                  <div className="relative bg-white/95 backdrop-blur-xl rounded-3xl p-6">
+                    {/* Profile Section */}
+                    <div className="flex items-center gap-4 mb-6">
+                      <motion.div
+                        className="relative"
+                        whileHover={{ scale: 1.05 }}
+                        transition={{ type: "spring", stiffness: 300 }}
+                      >
+                        <div className="w-16 h-16 rounded-2xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
+                          <img 
+                            src="/nizar.jpg"
+                            alt="ניזאר סמרי"
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.nextSibling.style.display = 'flex';
+                            }}
+                          />
+                          <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 hidden items-center justify-center">
+                            <User size={24} className="text-gray-500" />
+                          </div>
+                        </div>
+                        {/* Active indicator */}
+                        <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-400 rounded-full border-2 border-white shadow-lg flex items-center justify-center">
+                          <motion.div
+                            className="w-2 h-2 bg-white rounded-full"
+                            animate={{ scale: [1, 1.2, 1] }}
+                            transition={{ duration: 2, repeat: Infinity }}
+                          />
+                        </div>
+                      </motion.div>
+
+                      <div className="flex-1 text-right">
+                        <motion.h1
+                          className="text-lg font-bold text-gray-900 font-hebrew"
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 0.8 }}
+                        >
+                          {portfolioData.personal.name}
+                        </motion.h1>
+                        <motion.p
+                          className="text-sm text-gray-600 font-hebrew"
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 1.0 }}
+                        >
+                          מהנדס אזרחי מוסמך
+                        </motion.p>
+                        <motion.p
+                          className="text-xs text-gray-500 font-hebrew"
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: 1.2 }}
+                        >
+                          {portfolioData.personal.company}
+                        </motion.p>
                       </div>
                     </div>
-                    <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-white border-2 border-white rounded-full flex items-center justify-center shadow-[0_2px_8px_rgba(0,0,0,0.15)]">
-                      <div className="w-3 h-3 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full"></div>
+
+                    {/* Status Banner */}
+                    <motion.div
+                      className="flex items-center justify-center gap-2 bg-gray-50 border border-gray-200 rounded-2xl py-3 mb-6"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 1.4 }}
+                    >
+                      <motion.div
+                        className="w-2 h-2 bg-green-400 rounded-full"
+                        animate={{ opacity: [1, 0.5, 1] }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                      />
+                      <span className="text-sm font-medium text-gray-700 font-hebrew">
+                        זמין לפרויקטים חדשים
+                      </span>
+                    </motion.div>
+
+                    {/* Quick Actions */}
+                    <div className="grid grid-cols-3 gap-3">
+                      {[
+                        {
+                          icon: Phone,
+                          label: "התקשר",
+                          href: `tel:${portfolioData.personal.phone}`,
+                          gradient: "from-gray-600 to-gray-700",
+                          delay: 1.6
+                        },
+                        {
+                          icon: Mail,
+                          label: "מייל",
+                          href: `mailto:${portfolioData.personal.email}`,
+                          gradient: "from-gray-600 to-gray-700",
+                          delay: 1.8
+                        },
+                        {
+                          icon: Linkedin,
+                          label: "LinkedIn",
+                          href: "https://www.linkedin.com/in/nezarsomri-eng/",
+                          target: "_blank",
+                          gradient: "from-gray-600 to-gray-700",
+                          delay: 2.0
+                        }
+                      ].map((action, index) => (
+                        <motion.a
+                          key={index}
+                          href={action.href}
+                          target={action.target || "_self"}
+                          rel={action.target ? "noopener noreferrer" : ""}
+                          className={`group relative bg-gradient-to-br ${action.gradient} p-4 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden`}
+                          initial={{ opacity: 0, y: 30 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: action.delay }}
+                          whileHover={{ scale: 1.05, y: -2 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          {/* Hover overlay */}
+                          <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                          
+                          <div className="relative flex flex-col items-center text-center">
+                            <action.icon className="text-white mb-3" />
+                            <span className="text-xs font-medium text-white font-hebrew">
+                              {action.label}
+                            </span>
+                          </div>
+                        </motion.a>
+                      ))}
                     </div>
                   </div>
                 </motion.div>
 
-                {/* Professional Info */}
-                <motion.div
-                  className="space-y-3 mb-6"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.6 }}
-                >
-                  <h1 className="text-xl font-bold text-gray-900 font-hebrew">
-                    {portfolioData.personal.name}
-                  </h1>
-                  <p className="text-gray-600 font-medium text-base font-hebrew">
-                    {portfolioData.personal.title}
-                  </p>
-                  <p className="text-gray-500 text-sm font-hebrew">
-                    {portfolioData.personal.company}
-                  </p>
-                </motion.div>
+                {/* Modern Footer */}
+              </motion.div>
+            </div>
 
-                {/* Contact Info */}
-                <motion.div 
-                  className="space-y-3"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.9 }}
-                >
-                  {[
-                    { icon: Phone, text: portfolioData.personal.phone, href: `tel:${portfolioData.personal.phone}`, color: 'from-green-400 to-emerald-500' },
-                    { icon: Mail, text: portfolioData.personal.email, href: `mailto:${portfolioData.personal.email}`, color: 'from-blue-400 to-cyan-500' },
-                    { icon: () => (
-                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-                          <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-                        </svg>
-                      ), text: 'LinkedIn', href: 'https://www.linkedin.com/in/nezarsomri-eng/', color: 'from-blue-600 to-blue-700' }
-                  ].map((item, index) => (
-                    <motion.div
-                      key={index}
-                      className="group/contact"
-                      whileHover={{ scale: 1.02 }}
-                      initial={{ opacity: 0, x: 30 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 1 + index * 0.1 }}
-                    >
-                      {item.href ? (
-                        <a href={item.href} target={item.text === 'LinkedIn' ? '_blank' : '_self'} rel={item.text === 'LinkedIn' ? 'noopener noreferrer' : ''} className="flex items-center justify-between p-3 bg-white/60 backdrop-blur-sm rounded-xl hover:bg-white/80 transition-all duration-300 border border-white/40 group-hover/contact:border-white/60 shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.12)]">
-                          <span className="text-gray-600 text-sm font-hebrew group-hover/contact:text-gray-900 transition-colors">{item.text}</span>
-                          <div className={`p-2.5 bg-gradient-to-r ${item.color} rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.15)] group-hover/contact:shadow-[0_4px_12px_rgba(0,0,0,0.2)] transition-all`}>
-                            <item.icon size={16} className="text-white" />
-                          </div>
-                        </a>
-                      ) : (
-                        <div className="flex items-center justify-between p-3 bg-white/60 backdrop-blur-sm rounded-xl border border-white/40 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
-                          <span className="text-gray-600 text-sm font-hebrew">{item.text}</span>
-                          <div className={`p-2.5 bg-gradient-to-r ${item.color} rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.15)]`}>
-                            <item.icon size={16} className="text-white" />
-                          </div>
+            {/* Desktop View - Profile Card */}
+            <div className="hidden lg:block">
+              <div className="bg-white/80 backdrop-blur-md border border-white/20 rounded-3xl p-7 text-center shadow-[0_8px_32px_rgba(0,0,0,0.12)] shadow-cyan-500/8 max-w-md mx-auto relative overflow-hidden">
+                
+                {/* Subtle gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-b from-white/50 to-transparent pointer-events-none" />
+                
+                <div className="relative z-10">
+                  {/* Profile Picture */}
+                  <motion.div
+                    className="relative mx-auto mb-4"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.4 }}
+                  >
+                    <div className="w-32 h-32 mx-auto relative">
+                      <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 rounded-full border border-white/50 flex items-center justify-center overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.08)]">
+                        <img 
+                          src="/nizar.jpg"
+                          alt="ניזאר סמרי"
+                          className="w-full h-full object-cover rounded-full"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.nextSibling.style.display = 'flex';
+                          }}
+                        />
+                        <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 rounded-full hidden items-center justify-center">
+                          <User size={44} className="text-gray-500" />
                         </div>
-                      )}
-                    </motion.div>
-                  ))}
-                </motion.div>
+                      </div>
+                      <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-white border-2 border-white rounded-full flex items-center justify-center shadow-[0_2px_8px_rgba(0,0,0,0.15)]">
+                        <div className="w-3 h-3 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full"></div>
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  {/* Professional Info */}
+                  <motion.div
+                    className="space-y-3 mb-6"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.6 }}
+                  >
+                    <h1 className="text-xl font-bold text-gray-900 font-hebrew">
+                      {portfolioData.personal.name}
+                    </h1>
+                    <p className="text-gray-600 font-medium text-base font-hebrew">
+                      {portfolioData.personal.title}
+                    </p>
+                    <p className="text-gray-500 text-sm font-hebrew">
+                      {portfolioData.personal.company}
+                    </p>
+                  </motion.div>
+
+                  {/* Contact Info */}
+                  <motion.div 
+                    className="space-y-3"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.9 }}
+                  >
+                    {[
+                      { icon: Phone, text: portfolioData.personal.phone, href: `tel:${portfolioData.personal.phone}`, color: 'from-green-400 to-emerald-500' },
+                      { icon: Mail, text: portfolioData.personal.email, href: `mailto:${portfolioData.personal.email}`, color: 'from-blue-400 to-cyan-500' },
+                      { icon: () => (
+                          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                          </svg>
+                        ), text: 'LinkedIn', href: 'https://www.linkedin.com/in/nezarsomri-eng/', color: 'from-blue-600 to-blue-700' }
+                    ].map((item, index) => (
+                      <motion.div
+                        key={index}
+                        className="group/contact"
+                        whileHover={{ scale: 1.02 }}
+                        initial={{ opacity: 0, x: 30 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 1 + index * 0.1 }}
+                      >
+                        {item.href ? (
+                          <a href={item.href} target={item.text === 'LinkedIn' ? '_blank' : '_self'} rel={item.text === 'LinkedIn' ? 'noopener noreferrer' : ''} className="flex items-center justify-between p-3 bg-white/60 backdrop-blur-sm rounded-xl hover:bg-white/80 transition-all duration-300 border border-white/40 group-hover/contact:border-white/60 shadow-[0_2px_8px_rgba(0,0,0,0.06)] hover:shadow-[0_4px_16px_rgba(0,0,0,0.12)]">
+                            <span className="text-gray-600 text-sm font-hebrew group-hover/contact:text-gray-900 transition-colors">{item.text}</span>
+                            <div className={`p-2.5 bg-gradient-to-r ${item.color} rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.15)] group-hover/contact:shadow-[0_4px_12px_rgba(0,0,0,0.2)] transition-all`}>
+                              <item.icon size={16} className="text-white" />
+                            </div>
+                          </a>
+                        ) : (
+                          <div className="flex items-center justify-between p-3 bg-white/60 backdrop-blur-sm rounded-xl border border-white/40 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+                            <span className="text-gray-600 text-sm font-hebrew">{item.text}</span>
+                            <div className={`p-2.5 bg-gradient-to-r ${item.color} rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.15)]`}>
+                              <item.icon size={16} className="text-white" />
+                            </div>
+                          </div>
+                        )}
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                </div>
               </div>
             </div>
           </motion.div>
