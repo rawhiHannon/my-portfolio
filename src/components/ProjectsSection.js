@@ -20,16 +20,22 @@ const ProjectsSection = () => {
 
   // Store scroll position when modal opens
   const [savedScrollPosition, setSavedScrollPosition] = useState(0);
+  
+  // Flag to prevent app scroll interference during modal operations
+  const [isModalTransitioning, setIsModalTransitioning] = useState(false);
 
   // Add effect to prevent body scroll when modal is open
   React.useEffect(() => {
     if (selectedProject) {
+      // Set global flag to prevent app scroll interference
+      window.__modalTransitioning = true;
+      
       // Store current scroll position IMMEDIATELY
       const scrollY = window.scrollY;
       setSavedScrollPosition(scrollY);
       
-      // Immediately prevent any scroll-related interference from the app
-      document.body.style.pointerEvents = 'none';
+      // Add a custom attribute to the body to signal other components
+      document.body.setAttribute('data-modal-open', 'true');
       
       // Use requestAnimationFrame to ensure we capture the position before any other effects
       requestAnimationFrame(() => {
@@ -46,19 +52,22 @@ const ProjectsSection = () => {
         document.body.style.touchAction = 'none';
         document.documentElement.style.touchAction = 'none';
         
-        // Re-enable pointer events after preventing scroll
+        // Clear transitioning flag after modal is fully open
         setTimeout(() => {
-          document.body.style.pointerEvents = '';
+          window.__modalTransitioning = false;
         }, 100);
       });
     } else {
+      // Set global flag to prevent app scroll interference during close
+      window.__modalTransitioning = true;
+      
       // When closing modal, restore everything
       const scrollPosition = savedScrollPosition;
       
-      // Temporarily disable pointer events to prevent interference
-      document.body.style.pointerEvents = 'none';
+      // Remove the modal attribute
+      document.body.removeAttribute('data-modal-open');
       
-      // Re-enable scrolling
+      // Re-enable scrolling first
       document.body.style.position = '';
       document.body.style.top = '';
       document.body.style.left = '';
@@ -69,27 +78,40 @@ const ProjectsSection = () => {
       document.body.style.touchAction = '';
       document.documentElement.style.touchAction = '';
       
-      // Restore scroll position immediately and repeatedly
+      // Restore scroll position with multiple attempts and longer delays
       if (scrollPosition !== 0) {
-        // Immediate restore
-        window.scrollTo(0, scrollPosition);
+        // Create a more aggressive restoration sequence
+        const restorePosition = () => {
+          window.scrollTo({
+            top: scrollPosition,
+            left: 0,
+            behavior: 'instant'
+          });
+        };
         
-        // Use requestAnimationFrame for smoother restoration
+        // Immediate restore
+        restorePosition();
+        
+        // Multiple attempts with longer delays to override app logic
         requestAnimationFrame(() => {
-          window.scrollTo(0, scrollPosition);
+          restorePosition();
+          setTimeout(restorePosition, 50);
+          setTimeout(restorePosition, 100);
+          setTimeout(restorePosition, 200);
+          setTimeout(restorePosition, 300);
+          setTimeout(restorePosition, 500);
           
-          // Additional attempts to ensure position is maintained
-          setTimeout(() => window.scrollTo(0, scrollPosition), 0);
-          setTimeout(() => window.scrollTo(0, scrollPosition), 10);
-          setTimeout(() => window.scrollTo(0, scrollPosition), 50);
-          setTimeout(() => window.scrollTo(0, scrollPosition), 100);
+          // Clear global flag after all attempts
+          setTimeout(() => {
+            window.__modalTransitioning = false;
+          }, 600);
         });
+      } else {
+        // Clear global flag if no scroll restoration needed
+        setTimeout(() => {
+          window.__modalTransitioning = false;
+        }, 100);
       }
-      
-      // Re-enable pointer events after restoration
-      setTimeout(() => {
-        document.body.style.pointerEvents = '';
-      }, 200);
     }
 
     // Cleanup function to restore scrolling when component unmounts
@@ -103,7 +125,8 @@ const ProjectsSection = () => {
       document.documentElement.style.overflow = '';
       document.body.style.touchAction = '';
       document.documentElement.style.touchAction = '';
-      document.body.style.pointerEvents = '';
+      document.body.removeAttribute('data-modal-open');
+      window.__modalTransitioning = false;
     };
   }, [selectedProject]);
 
@@ -164,7 +187,7 @@ const ProjectsSection = () => {
   return (
     <section
       id="projects"
-      className="relative min-h-screen py-24 md:py-32 bg-gradient-to-b from-gray-50 via-white to-gray-100 overflow-hidden"
+      className="relative min-h-screen py-32 md:py-32 bg-gradient-to-b from-gray-50 via-white to-gray-100 overflow-hidden"
     >
       {/* Modern Animated Background */}
       <div className="absolute inset-0 w-full h-full opacity-60">
