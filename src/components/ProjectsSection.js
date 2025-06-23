@@ -4,9 +4,11 @@ import { useInView } from 'react-intersection-observer';
 import { ExternalLink, Tag, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLanguage } from '../hooks/useLanguage';
 import { portfolioData } from '../data/portfolioData';
+import { useSectionContext } from '../App';
 
 const ProjectsSection = () => {
   const { t, isRTL } = useLanguage();
+  const { currentSection } = useSectionContext();
   const [ref, inView] = useInView({ threshold: 0.1, triggerOnce: true });
   const [selectedProject, setSelectedProject] = useState(null);
 
@@ -23,8 +25,16 @@ const ProjectsSection = () => {
 
   // Handle modal opening
   const openModal = useCallback((project) => {
-    // Simply prevent scrolling without changing position
+    // Prevent scrolling
     document.body.style.overflow = 'hidden';
+    
+    // Hide the header only on mobile (screen width < 768px)
+    if (window.innerWidth < 768) {
+      const header = document.querySelector('header');
+      if (header) {
+        header.style.display = 'none';
+      }
+    }
     
     setIsModalOpen(true);
     setSelectedProject(project);
@@ -32,17 +42,39 @@ const ProjectsSection = () => {
 
   // Handle modal closing
   const closeModal = useCallback(() => {
-    // Just restore scrolling
+    // Restore scrolling
     document.body.style.overflow = '';
+    
+    // Show the header again only if it was hidden (mobile)
+    if (window.innerWidth < 768) {
+      const header = document.querySelector('header');
+      if (header) {
+        header.style.display = '';
+      }
+    }
     
     setIsModalOpen(false);
     setSelectedProject(null);
   }, []);
 
+  // Close modal when section changes
+  React.useEffect(() => {
+    if (isModalOpen && currentSection !== 'projects') {
+      closeModal();
+    }
+  }, [currentSection, isModalOpen]);
+
   // Cleanup on unmount
   React.useEffect(() => {
     return () => {
       document.body.style.overflow = '';
+      // Restore header on unmount only if on mobile
+      if (window.innerWidth < 768) {
+        const header = document.querySelector('header');
+        if (header) {
+          header.style.display = '';
+        }
+      }
     };
   }, []);
 
@@ -335,11 +367,19 @@ const ProjectsSection = () => {
           </div>
         </div>
   
-        {/* Fixed Project Modal - No more flashing */}
+        {/* Fixed Project Modal - Full Screen Coverage */}
         <AnimatePresence mode="wait">
           {isModalOpen && selectedProject && (
             <motion.div
-              className="fixed inset-0 z-[9999] flex items-center justify-center"
+              className="fixed inset-0 flex items-center justify-center"
+              style={{ 
+                zIndex: 2147483647, // Maximum z-index value
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0
+              }}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -354,9 +394,9 @@ const ProjectsSection = () => {
                 exit={{ opacity: 0 }}
               />
               
-              {/* Modal Content - Fixed positioning with header spacing */}
+              {/* Modal Content - Full Screen */}
               <motion.div
-                className="relative w-full h-full md:max-w-4xl md:h-auto md:rounded-2xl bg-white overflow-hidden shadow-2xl flex flex-col mt-24 md:mt-0"
+                className="relative w-full h-full md:max-w-4xl md:h-auto md:rounded-2xl bg-white overflow-hidden shadow-2xl flex flex-col"
                 initial={{ scale: 0.95, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.95, opacity: 0 }}
@@ -368,8 +408,8 @@ const ProjectsSection = () => {
                 }}
                 onClick={(e) => e.stopPropagation()}
                 style={{
-                  // Ensure modal is properly positioned on mobile
-                  maxHeight: 'calc(100vh - 6rem)' // Account for the top margin
+                  // Full height coverage
+                  maxHeight: '100vh'
                 }}
               >
                 {/* Modal Header */}
@@ -388,7 +428,8 @@ const ProjectsSection = () => {
                   {/* Close button */}
                   <button
                     onClick={closeModal}
-                    className="absolute top-4 right-4 p-3 bg-white hover:bg-gray-50 text-gray-800 rounded-full transition-all duration-200 shadow-2xl hover:scale-105 z-50 border-2 border-gray-300"
+                    className="absolute top-4 right-4 p-3 bg-white hover:bg-gray-50 text-gray-800 rounded-full transition-all duration-200 shadow-2xl hover:scale-105 border-2 border-gray-300"
+                    style={{ zIndex: 1000000 }}
                     aria-label="Close modal"
                   >
                     <X size={24} className="hover:text-cyan-600 transition-colors" />
