@@ -413,22 +413,6 @@ const ProjectsSection = () => {
                     </div>
                   </div>
                   
-                  {/* Add links or buttons */}
-                  <div className="flex justify-end mt-8 gap-4">
-                    <button 
-                      className="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-full font-medium transition-all duration-300 font-hebrew flex items-center gap-2"
-                      onClick={() => setSelectedProject(null)}
-                    >
-                      {t('projects.close')}
-                    </button>
-                    <a 
-                      href="#" 
-                      className="px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white rounded-full font-medium transition-all duration-300 font-hebrew flex items-center gap-2 shadow-lg hover:shadow-xl hover:shadow-cyan-500/20"
-                    >
-                      <ExternalLink size={18} />
-                      {t('projects.visitProject')}
-                    </a>
-                  </div>
                 </div>
               </motion.div>
             </motion.div>
