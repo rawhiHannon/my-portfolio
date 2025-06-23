@@ -89,7 +89,7 @@ const HeroSection = () => {
                  items-center md:items-start
                  overflow-hidden
                  bg-gradient-to-br from-gray-50 via-white to-gray-100
-                 pt-32 md:pt-32 pb-16 lg:pb-16"
+                 pt-28 md:pt-32 pb-16 lg:pb-16"
     >
       <canvas
         ref={canvasRef}
