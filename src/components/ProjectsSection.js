@@ -17,8 +17,9 @@ const ProjectsSection = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const totalPages = Math.ceil(portfolioData.projects.length / itemsPerPage);
   
-  // Mobile carousel state
+  // Mobile carousel state with direction tracking
   const [mobileCurrentIndex, setMobileCurrentIndex] = useState(0);
+  const [direction, setDirection] = useState(0);
 
   // Simple modal state management
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -110,13 +111,48 @@ const ProjectsSection = () => {
     }
   };
 
-  // Mobile navigation functions
+  // Enhanced mobile navigation functions with direction tracking
   const nextProject = () => {
+    setDirection(1);
     setMobileCurrentIndex((prev) => (prev + 1) % portfolioData.projects.length);
   };
 
   const prevProject = () => {
+    setDirection(-1);
     setMobileCurrentIndex((prev) => (prev - 1 + portfolioData.projects.length) % portfolioData.projects.length);
+  };
+
+  // Handle dot click with direction tracking
+  const handleDotClick = (index) => {
+    setDirection(index > mobileCurrentIndex ? 1 : -1);
+    setMobileCurrentIndex(index);
+  };
+
+  // Enhanced carousel variants for smoother transitions
+  const carouselVariants = {
+    enter: (direction) => ({
+      x: direction > 0 ? 300 : -300,
+      opacity: 0,
+      scale: 0.95
+    }),
+    center: {
+      x: 0,
+      opacity: 1,
+      scale: 1,
+      transition: {
+        duration: 0.3,
+        ease: [0.22, 1, 0.36, 1]
+      }
+    },
+    exit: (direction) => ({
+      x: direction < 0 ? 300 : -300,
+      opacity: 0,
+      scale: 0.95,
+      transition: {
+        duration: 0.3,
+        ease: [0.22, 1, 0.36, 1]
+      }
+    })
   };
 
   // Project emoji icons
@@ -280,90 +316,105 @@ const ProjectsSection = () => {
           </div>
         </div>
   
-        {/* Mobile Carousel */}
+        {/* Enhanced Mobile Carousel with smooth animations */}
         <div className="md:hidden relative">
-          <button
+          <motion.button
             onClick={prevProject}
             className="absolute -left-2 top-1/2 transform -translate-y-1/2 z-30 p-3 bg-white/80 hover:bg-white text-gray-800 rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-110 border border-gray-200/50 backdrop-blur-md group"
             aria-label="Previous project"
+            whileHover={{ scale: 1.1, x: -3 }}
+            whileTap={{ scale: 0.9 }}
           >
             <ChevronLeft size={20} className="group-hover:text-cyan-600 transition-colors" />
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             onClick={nextProject}
             className="absolute -right-2 top-1/2 transform -translate-y-1/2 z-30 p-3 bg-white/80 hover:bg-white text-gray-800 rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-110 border border-gray-200/50 backdrop-blur-md group"
             aria-label="Next project"
+            whileHover={{ scale: 1.1, x: 3 }}
+            whileTap={{ scale: 0.9 }}
           >
             <ChevronRight size={20} className="group-hover:text-cyan-600 transition-colors" />
-          </button>
+          </motion.button>
   
           <div className="px-14 mx-auto max-w-sm">
-            <motion.div
-              key={mobileCurrentIndex}
-              className="cursor-pointer group transition-all duration-300"
-              onClick={() => openModal(portfolioData.projects[mobileCurrentIndex])}
-              initial={{ opacity: 0, x: 50 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -50 }}
-              transition={{ duration: 0.5 }}
-            >
-              <div className="relative overflow-hidden rounded-2xl bg-white/90 backdrop-blur-xl border border-gray-200/40 hover:border-cyan-400/60 transition-all duration-300 h-[26rem] flex flex-col shadow-lg shadow-gray-900/5 hover:shadow-2xl hover:shadow-cyan-500/10">
-                <div className="relative w-full h-48 overflow-hidden bg-gray-100 flex-shrink-0">
-                  <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 mix-blend-overlay z-10" />
-                  <img
-                    src={getProjectImage(portfolioData.projects[mobileCurrentIndex].id)}
-                    alt={portfolioData.projects[mobileCurrentIndex].title}
-                    className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-110"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                      e.target.nextSibling.style.display = 'flex';
-                    }}
-                  />
-                  <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 hidden items-center justify-center text-6xl">
-                    {getProjectEmoji(portfolioData.projects[mobileCurrentIndex].id)}
+            <AnimatePresence initial={false} custom={direction} mode="wait">
+              <motion.div
+                key={mobileCurrentIndex}
+                custom={direction}
+                variants={carouselVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+                className="cursor-pointer group transition-all duration-300"
+                onClick={() => openModal(portfolioData.projects[mobileCurrentIndex])}
+              >
+                <div className="relative overflow-hidden rounded-2xl bg-white/90 backdrop-blur-xl border border-gray-200/40 hover:border-cyan-400/60 transition-all duration-300 h-[26rem] flex flex-col shadow-lg shadow-gray-900/5 hover:shadow-2xl hover:shadow-cyan-500/10">
+                  <div className="relative w-full h-48 overflow-hidden bg-gray-100 flex-shrink-0">
+                    <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 mix-blend-overlay z-10" />
+                    <img
+                      src={getProjectImage(portfolioData.projects[mobileCurrentIndex].id)}
+                      alt={portfolioData.projects[mobileCurrentIndex].title}
+                      className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-110"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.nextSibling.style.display = 'flex';
+                      }}
+                    />
+                    <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 hidden items-center justify-center text-6xl">
+                      {getProjectEmoji(portfolioData.projects[mobileCurrentIndex].id)}
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                    <div className="absolute inset-0 bg-cyan-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-20">
+                      <div className="flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur-md rounded-full text-gray-800 font-medium font-hebrew shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                        <ExternalLink size={18} className="text-cyan-500" />
+                        {t('projects.viewProject')}
+                      </div>
+                    </div>
                   </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-                  <div className="absolute inset-0 bg-cyan-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center z-20">
-                    <div className="flex items-center gap-2 px-4 py-2 bg-white/90 backdrop-blur-md rounded-full text-gray-800 font-medium font-hebrew shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                      <ExternalLink size={18} className="text-cyan-500" />
-                      {t('projects.viewProject')}
+  
+                  <div className="p-6 flex-1 flex flex-col bg-white">
+                    <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-cyan-600 transition-colors duration-300 text-right font-hebrew">
+                      {portfolioData.projects[mobileCurrentIndex].title}
+                    </h3>
+                    <p className="text-gray-600 mb-5 text-right font-hebrew flex-1 line-clamp-3">
+                      {portfolioData.projects[mobileCurrentIndex].description}
+                    </p>
+                    <div className="mt-auto">
+                      {/* Empty space - no tags */}
                     </div>
                   </div>
                 </div>
-  
-                <div className="p-6 flex-1 flex flex-col bg-white">
-                  <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-cyan-600 transition-colors duration-300 text-right font-hebrew">
-                    {portfolioData.projects[mobileCurrentIndex].title}
-                  </h3>
-                  <p className="text-gray-600 mb-5 text-right font-hebrew flex-1 line-clamp-3">
-                    {portfolioData.projects[mobileCurrentIndex].description}
-                  </p>
-                  <div className="mt-auto">
-                    {/* Empty space - no tags */}
-                  </div>
-                </div>
-              </div>
-            </motion.div>
+              </motion.div>
+            </AnimatePresence>
           </div>
   
+          {/* Enhanced pagination indicators */}
           <div className="flex justify-center mt-8 gap-2">
             {portfolioData.projects.map((_, idx) => (
-              <button
+              <motion.button
                 key={idx}
-                onClick={() => setMobileCurrentIndex(idx)}
+                onClick={() => handleDotClick(idx)}
                 className={`w-3 h-3 rounded-full transition-all duration-300 ${
                   idx === mobileCurrentIndex 
-                    ? 'bg-gradient-to-r from-cyan-500 to-blue-600 scale-125 shadow-lg' 
+                    ? 'bg-gradient-to-r from-cyan-500 to-blue-600 scale-125 shadow-lg shadow-cyan-500/30' 
                     : 'bg-gray-300 hover:bg-gray-400'
                 }`}
                 aria-label={`Go to project ${idx + 1}`}
+                whileHover={{ scale: 1.2 }}
+                whileTap={{ scale: 0.9 }}
               />
             ))}
           </div>
           <div className="text-center mt-4">
-            <span className="text-gray-500 font-hebrew text-sm">
+            <motion.span 
+              className="text-gray-500 font-hebrew text-sm bg-white/70 backdrop-blur-sm px-3 py-1 rounded-full shadow-sm"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              key={mobileCurrentIndex}
+            >
               פרויקט {mobileCurrentIndex + 1} מתוך {portfolioData.projects.length}
-            </span>
+            </motion.span>
           </div>
         </div>
   
