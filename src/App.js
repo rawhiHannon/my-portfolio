@@ -27,11 +27,14 @@ function App() {
   const [currentSection, setCurrentSection] = useState(0);
   const [isScrolling, setIsScrolling] = useState(false);
   const [sectionPositions, setSectionPositions] = useState({});
+  const [showSectionIndicator, setShowSectionIndicator] = useState(false);
   
   const sections = ['home', 'services', 'projects', 'contact'];
+  const sectionNames = ['בית', 'שירותים', 'פרויקטים', 'צור קשר'];
   const observerRef = useRef(null);
   const scrollTimeoutRef = useRef(null);
   const lastUpdateTimeRef = useRef(0);
+  const indicatorTimeoutRef = useRef(null);
   // Store positions in a ref to avoid state updates during calculations
   const positionsRef = useRef({});
 
@@ -136,6 +139,21 @@ function App() {
     }
     
     return closestSection;
+  };
+
+  // Function to show section indicator temporarily
+  const showIndicatorTemporarily = () => {
+    setShowSectionIndicator(true);
+    
+    // Clear existing timeout
+    if (indicatorTimeoutRef.current) {
+      clearTimeout(indicatorTimeoutRef.current);
+    }
+    
+    // Hide after 3 seconds
+    indicatorTimeoutRef.current = setTimeout(() => {
+      setShowSectionIndicator(false);
+    }, 3000);
   };
 
   // Function to check if user can snap to next/previous section
@@ -256,6 +274,9 @@ function App() {
       // Update scroll-to-top button
       setShowScrollTop(window.scrollY > 400);
 
+      // Show section indicator on scroll
+      showIndicatorTemporarily();
+
       // Clear existing timeout
       if (scrollTimeoutRef.current) {
         clearTimeout(scrollTimeoutRef.current);
@@ -357,6 +378,9 @@ function App() {
       if (scrollTimeoutRef.current) {
         clearTimeout(scrollTimeoutRef.current);
       }
+      if (indicatorTimeoutRef.current) {
+        clearTimeout(indicatorTimeoutRef.current);
+      }
     };
   }, [isScrolling, currentSection, sections]); // Removed sectionPositions from deps
 
@@ -401,25 +425,73 @@ function App() {
           <ContactSection />
         </main>
 
-        {/* Section Indicator */}
-        <div className="fixed right-4 xl:right-8 top-1/2 transform -translate-y-1/2 z-40 hidden lg:flex flex-col gap-3 bg-white/10 backdrop-blur-md rounded-full p-3 border border-white/20 shadow-lg">
-          {sections.map((section, index) => (
-            <button
-              key={section}
-              onClick={() => navigateToSection(section)}
-              className={`w-3 h-3 rounded-full transition-all duration-300 relative ${
-                index === currentSection
-                  ? 'bg-cyan-400 scale-125 shadow-md shadow-cyan-400/50'
-                  : 'bg-gray-400 hover:bg-gray-300 hover:scale-110'
-              }`}
-              title={`עבור ל${section === 'home' ? 'בית' : section === 'services' ? 'שירותים' : section === 'projects' ? 'פרויקטים' : 'צור קשר'}`}
+        {/* Smart Section Indicator - Only shows on scroll and hides on small screens */}
+        <AnimatePresence>
+          {showSectionIndicator && (
+            <motion.div
+              className="fixed right-4 xl:right-8 top-1/2 transform -translate-y-1/2 z-40 hidden md:flex flex-col gap-3 bg-white/10 backdrop-blur-md rounded-full p-3 border border-white/20 shadow-lg"
+              initial={{ opacity: 0, x: 50, scale: 0.8 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: 50, scale: 0.8 }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
             >
-              {/* Active indicator ring */}
-              {index === currentSection && (
-                <div className="absolute inset-0 rounded-full border-2 border-cyan-300 scale-150 opacity-50 animate-pulse"></div>
-              )}
-            </button>
-          ))}
+              {sections.map((section, index) => (
+                <motion.button
+                  key={section}
+                  onClick={() => navigateToSection(section)}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 relative ${
+                    index === currentSection
+                      ? 'bg-cyan-400 scale-125 shadow-md shadow-cyan-400/50'
+                      : 'bg-gray-400 hover:bg-gray-300 hover:scale-110'
+                  }`}
+                  title={`עבור ל${sectionNames[index]}`}
+                  whileHover={{ scale: 1.3 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  {/* Active indicator ring */}
+                  {index === currentSection && (
+                    <motion.div 
+                      className="absolute inset-0 rounded-full border-2 border-cyan-300 scale-150 opacity-50"
+                      animate={{ scale: [1.5, 1.8, 1.5] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    />
+                  )}
+                </motion.button>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Alternative: Bottom Progress Bar (always visible on mobile) */}
+        <div className="fixed bottom-0 left-0 right-0 z-30 md:hidden">
+          <div className="bg-black/20 backdrop-blur-sm border-t border-white/10">
+            <div className="flex justify-center py-2">
+              <div className="flex gap-2">
+                {sections.map((section, index) => (
+                  <button
+                    key={section}
+                    onClick={() => navigateToSection(section)}
+                    className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-300 ${
+                      index === currentSection
+                        ? 'bg-cyan-500 text-white shadow-lg shadow-cyan-500/30'
+                        : 'bg-white/10 text-white/70 hover:bg-white/20'
+                    }`}
+                  >
+                    {sectionNames[index]}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {/* Progress bar */}
+            <div className="h-1 bg-white/10">
+              <motion.div
+                className="h-full bg-gradient-to-r from-cyan-400 to-cyan-600"
+                initial={{ width: '25%' }}
+                animate={{ width: `${((currentSection + 1) / sections.length) * 100}%` }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+              />
+            </div>
+          </div>
         </div>
 
         {/* Scroll to Top Button */}
@@ -427,7 +499,7 @@ function App() {
           {showScrollTop && (
             <motion.button
               onClick={scrollToTop}
-              className="fixed bottom-6 right-4 xl:right-8 p-3 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white rounded-2xl shadow-xl hover:shadow-cyan-500/25 z-50 group"
+              className="fixed bottom-20 md:bottom-6 right-4 xl:right-8 p-3 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white rounded-2xl shadow-xl hover:shadow-cyan-500/25 z-50 group"
               initial={{ opacity: 0, scale: 0, y: 100 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0, y: 100 }}

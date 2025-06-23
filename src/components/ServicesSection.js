@@ -189,7 +189,7 @@ const ServicesSection = () => {
           {/* Desktop Grid - with staggered animations */}
           <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {services.map((service, index) => (
-              <motion.div
+              <div
                 key={service.key}
                 className="group relative"
                 variants={cardVariants}
@@ -228,7 +228,7 @@ const ServicesSection = () => {
                     layoutId={`service-border-${service.key}`}
                   />
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
   
@@ -326,7 +326,7 @@ const ServicesSection = () => {
         </div>
   
         {/* Enhanced Bottom CTA */}
-        <motion.div
+        <div
           className="text-center"
           initial={{ opacity: 0, y: 30 }}
           animate={inView ? { opacity: 1, y: 0 } : {}}
@@ -345,7 +345,7 @@ const ServicesSection = () => {
             {/* Text content */}
             <span className="relative z-10">בואו נתחיל לעבוד יחד</span>
           </motion.button>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

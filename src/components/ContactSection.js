@@ -101,7 +101,7 @@ const ContactSection = () => {
   return (
     <section
       id="contact"
-      className="py-24 md:py-24 pt-32 md:pt-32 bg-gradient-to-b from-gray-50 via-white to-gray-100 relative overflow-hidden"
+      className="relative min-h-screen py-24 md:py-32 bg-gradient-to-b from-gray-50 via-white to-gray-100 overflow-hidden"
     >
       {/* Background Elements */}
       <div className="absolute inset-0">
@@ -137,7 +137,7 @@ const ContactSection = () => {
   
         <div className="grid lg:grid-cols-2 gap-12">
           {/* Contact Info */}
-          <motion.div
+          <div
             className="space-y-8"
             initial={{ opacity: 0, x: 50 }}
             animate={inView ? { opacity: 1, x: 0 } : {}}
@@ -145,7 +145,7 @@ const ContactSection = () => {
           >
             <div className="space-y-6">
               {contactInfo.map((info, index) => (
-                <motion.div
+                <div
                   key={index}
                   className="group"
                   initial={{ opacity: 0, y: 30 }}
@@ -188,13 +188,13 @@ const ContactSection = () => {
                       </div>
                     </div>
                   )}
-                </motion.div>
+                </div>
               ))}
             </div>
-          </motion.div>
+          </div>
   
           {/* Contact Form */}
-          <motion.div
+          <div
             initial={{ opacity: 0, x: -50 }}
             animate={inView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.8, delay: 0.8 }}
@@ -325,7 +325,7 @@ const ContactSection = () => {
                 )}
               </button>
             </form>
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>

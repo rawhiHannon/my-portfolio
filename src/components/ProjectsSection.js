@@ -156,18 +156,19 @@ const ProjectsSection = () => {
                     onClick={() => setSelectedProject(project)}
                   >
                     <div className="relative overflow-hidden rounded-2xl bg-white/90 backdrop-blur-xl border border-gray-200/40 hover:border-cyan-400/60 transition-all duration-300 h-[26rem] flex flex-col shadow-lg shadow-gray-900/5 hover:shadow-2xl hover:shadow-cyan-500/10 hover:-translate-y-1">
-                      <div className="relative h-48 overflow-hidden">
+                      {/* Fixed image container with consistent dimensions */}
+                      <div className="relative w-full h-48 overflow-hidden bg-gray-100 flex-shrink-0">
                         <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 mix-blend-overlay z-10" />
                         <img
                           src={getProjectImage(project.id)}
                           alt={project.title}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                          className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-110"
                           onError={(e) => {
                             e.target.style.display = 'none';
                             e.target.nextSibling.style.display = 'flex';
                           }}
                         />
-                        <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 hidden items-center justify-center text-6xl">
+                        <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 hidden items-center justify-center text-6xl">
                           {getProjectEmoji(project.id)}
                         </div>
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
@@ -263,18 +264,19 @@ const ProjectsSection = () => {
               transition={{ duration: 0.5 }}
             >
               <div className="relative overflow-hidden rounded-2xl bg-white/90 backdrop-blur-xl border border-gray-200/40 hover:border-cyan-400/60 transition-all duration-300 h-[26rem] flex flex-col shadow-lg shadow-gray-900/5 hover:shadow-2xl hover:shadow-cyan-500/10">
-                <div className="relative h-48 overflow-hidden">
+                {/* Fixed mobile image container */}
+                <div className="relative w-full h-48 overflow-hidden bg-gray-100 flex-shrink-0">
                   <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 mix-blend-overlay z-10" />
                   <img
                     src={getProjectImage(portfolioData.projects[mobileCurrentIndex].id)}
                     alt={portfolioData.projects[mobileCurrentIndex].title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-110"
                     onError={(e) => {
                       e.target.style.display = 'none';
                       e.target.nextSibling.style.display = 'flex';
                     }}
                   />
-                  <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 hidden items-center justify-center text-6xl">
+                  <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 hidden items-center justify-center text-6xl">
                     {getProjectEmoji(portfolioData.projects[mobileCurrentIndex].id)}
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
@@ -355,13 +357,13 @@ const ProjectsSection = () => {
                 transition={{ type: "spring", damping: 25, stiffness: 300 }}
                 onClick={(e) => e.stopPropagation()}
               >
-                {/* Modal Header */}
+                {/* Modal Header with fixed image dimensions */}
                 <div className="relative">
-                  <div className="h-80 overflow-hidden">
+                  <div className="h-80 overflow-hidden bg-gray-100">
                     <img
                       src={getProjectImage(selectedProject.id)}
                       alt={selectedProject.title}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover object-center"
                     />
                     <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 mix-blend-overlay" />
                   </div>
