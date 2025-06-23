@@ -167,7 +167,7 @@ const ServicesSection = () => {
       >
         {/* Header */}
         <motion.div
-          className="text-center mb-16"
+          className="text-center mb-16 md:mb-16 mb-8"
           initial={false}
           animate={inView && isLoaded ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ duration: 0.8 }}
@@ -232,26 +232,34 @@ const ServicesSection = () => {
             ))}
           </div>
   
-          {/* Mobile Carousel - improved with smoother transitions */}
+          {/* Mobile Carousel - with fixed arrow buttons */}
           <div className="md:hidden relative">
-            {/* Expanded spacing for navigation buttons */}
-            <motion.button
+            {/* Fixed size arrow buttons with consistent positioning */}
+            <button
               onClick={handlePrev}
-              className="absolute left-0 top-1/2 transform -translate-y-1/2 z-30 p-4 bg-white/90 hover:bg-white text-gray-800 rounded-full shadow-xl hover:shadow-2xl transition-all duration-200 hover:scale-110 border border-gray-200"
-              whileHover={{ scale: 1.1, x: -3 }}
-              whileTap={{ scale: 0.9 }}
+              className="absolute left-0 top-1/2 transform -translate-y-1/2 z-30 w-12 h-12 flex items-center justify-center bg-white/90 hover:bg-white text-gray-800 rounded-full shadow-xl hover:shadow-2xl transition-all duration-200 border border-gray-200"
+              style={{ 
+                position: 'absolute',
+                transform: 'translateY(-50%)',
+                minWidth: '48px',
+                minHeight: '48px'
+              }}
             >
-              <ChevronLeft size={22} />
-            </motion.button>
+              <ChevronLeft size={24} className="text-gray-600 hover:text-cyan-600 transition-colors" />
+            </button>
             
-            <motion.button
+            <button
               onClick={handleNext}
-              className="absolute right-0 top-1/2 transform -translate-y-1/2 z-30 p-4 bg-white/90 hover:bg-white text-gray-800 rounded-full shadow-xl hover:shadow-2xl transition-all duration-200 hover:scale-110 border border-gray-200"
-              whileHover={{ scale: 1.1, x: 3 }}
-              whileTap={{ scale: 0.9 }}
+              className="absolute right-0 top-1/2 transform -translate-y-1/2 z-30 w-12 h-12 flex items-center justify-center bg-white/90 hover:bg-white text-gray-800 rounded-full shadow-xl hover:shadow-2xl transition-all duration-200 border border-gray-200"
+              style={{ 
+                position: 'absolute',
+                transform: 'translateY(-50%)',
+                minWidth: '48px',
+                minHeight: '48px'
+              }}
             >
-              <ChevronRight size={22} />
-            </motion.button>
+              <ChevronRight size={24} className="text-gray-600 hover:text-cyan-600 transition-colors" />
+            </button>
   
             <div className="px-16"> {/* Increased padding for more space around carousel */}
               <AnimatePresence initial={false} custom={direction} mode="wait">
