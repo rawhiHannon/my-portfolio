@@ -196,7 +196,7 @@ const HeroSection = () => {
                       transition={{ delay: 1.4 }}
                     >
                       <motion.div
-                        className="w-2 h-2 bg-green-400 rounded-full"
+                        className="w-2 h-2 bg-gray-400 rounded-full"
                         animate={{ opacity: [1, 0.5, 1] }}
                         transition={{ duration: 2, repeat: Infinity }}
                       />
@@ -237,8 +237,8 @@ const HeroSection = () => {
                           target={action.target || "_self"}
                           rel={action.target ? "noopener noreferrer" : ""}
                           className={`group relative bg-gradient-to-br ${action.gradient} p-4 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden`}
-                          initial={{ opacity: 0, y: 30 }}
-                          animate={{ opacity: 1, y: 0 }}
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
                           transition={{ delay: action.delay }}
                           whileHover={{ scale: 1.05, y: -2 }}
                           whileTap={{ scale: 0.95 }}
