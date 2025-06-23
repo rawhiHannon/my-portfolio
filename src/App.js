@@ -545,22 +545,6 @@ function App() {
         </div>
 
         {/* Scroll to Top Button */}
-        <AnimatePresence>
-          {showScrollTop && (
-            <motion.button
-              onClick={scrollToTop}
-              className="fixed bottom-24 md:bottom-6 right-4 xl:right-8 p-3 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white rounded-2xl shadow-xl hover:shadow-cyan-500/25 z-40 group"
-              initial={{ opacity: 0, scale: 0, y: 100 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0, y: 100 }}
-              whileHover={{ scale: 1.1, y: -3 }}
-              whileTap={{ scale: 0.9 }}
-              transition={{ type: "spring", stiffness: 260, damping: 20 }}
-            >
-              <ChevronUp size={20} className="group-hover:-translate-y-1 transition-transform duration-300" />
-            </motion.button>
-          )}
-        </AnimatePresence>
       </div>
     </SectionContext.Provider>
   );
