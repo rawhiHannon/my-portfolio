@@ -196,7 +196,7 @@ const HeroSection = () => {
                       transition={{ delay: 1.4 }}
                     >
                       <motion.div
-                        className="w-2 h-2 bg-gray-400 rounded-full"
+                        className="w-2 h-2 bg-green-400 rounded-full"
                         animate={{ opacity: [1, 0.5, 1] }}
                         transition={{ duration: 2, repeat: Infinity }}
                       />
