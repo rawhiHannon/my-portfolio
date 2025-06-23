@@ -1,6 +1,6 @@
 import React, { useEffect, useState, createContext, useContext, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronUp } from 'lucide-react';
+import { ChevronUp, Home, Briefcase, FolderOpen, Mail } from 'lucide-react';
 import { useLanguage } from './hooks/useLanguage';
 import ModernHeader from './components/ModernHeader';
 import HeroSection from './components/HeroSection';
@@ -21,7 +21,7 @@ export const useSectionContext = () => {
 };
 
 function App() {
-  const { isRTL } = useLanguage();
+  const { isRTL, t } = useLanguage();
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [currentSection, setCurrentSection] = useState(0);
@@ -462,36 +462,86 @@ function App() {
           )}
         </AnimatePresence>
 
-        {/* Alternative: Bottom Progress Bar (always visible on mobile) */}
-        <div className="fixed bottom-0 left-0 right-0 z-30 md:hidden">
-          <div className="bg-black/20 backdrop-blur-sm border-t border-white/10">
-            <div className="flex justify-center py-2">
-              <div className="flex gap-2">
-                {sections.map((section, index) => (
-                  <button
-                    key={section}
-                    onClick={() => navigateToSection(section)}
-                    className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-300 ${
-                      index === currentSection
-                        ? 'bg-cyan-500 text-white shadow-lg shadow-cyan-500/30'
-                        : 'bg-white/10 text-white/70 hover:bg-white/20'
-                    }`}
+        {/* iPhone-Style Bottom Navigation - Mobile Only */}
+        <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
+          {/* Backdrop with blur */}
+          <div className="absolute inset-0 bg-white/80 backdrop-blur-xl" />
+          
+          {/* Safe area padding for iPhone */}
+          <div className="relative px-4 pt-2 pb-6">
+            <div className="flex justify-around items-center">
+              {[
+                { key: 'home', icon: Home, label: t('navigation.home') },
+                { key: 'services', icon: Briefcase, label: t('navigation.services') },
+                { key: 'projects', icon: FolderOpen, label: t('navigation.projects') },
+                { key: 'contact', icon: Mail, label: t('navigation.contact') }
+              ].map((item, index) => {
+                const isActive = currentSection === index;
+                return (
+                  <motion.button
+                    key={item.key}
+                    onClick={() => navigateToSection(item.key)}
+                    className="flex flex-col items-center justify-center p-2 min-w-[60px]"
+                    whileTap={{ scale: 0.9 }}
+                    animate={{ 
+                      scale: isActive ? 1.1 : 1,
+                    }}
+                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
                   >
-                    {sectionNames[index]}
-                  </button>
-                ))}
-              </div>
-            </div>
-            {/* Progress bar */}
-            <div className="h-1 bg-white/10">
-              <motion.div
-                className="h-full bg-gradient-to-r from-cyan-400 to-cyan-600"
-                initial={{ width: '25%' }}
-                animate={{ width: `${((currentSection + 1) / sections.length) * 100}%` }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
-              />
+                    {/* Icon container with active state */}
+                    <motion.div
+                      className={`p-2 rounded-xl transition-all duration-300 ${
+                        isActive 
+                          ? 'bg-gradient-to-r from-cyan-500 to-blue-600 shadow-lg shadow-cyan-500/30' 
+                          : 'bg-transparent'
+                      }`}
+                      animate={{
+                        y: isActive ? -2 : 0,
+                      }}
+                      transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                    >
+                      <item.icon 
+                        size={24} 
+                        className={`transition-all duration-300 ${
+                          isActive ? 'text-white' : 'text-gray-600'
+                        }`}
+                      />
+                    </motion.div>
+                    
+                    {/* Label */}
+                    <motion.span
+                      className={`text-xs font-medium mt-1 transition-all duration-300 font-hebrew ${
+                        isActive ? 'text-cyan-600 font-semibold' : 'text-gray-500'
+                      }`}
+                      animate={{
+                        opacity: isActive ? 1 : 0.7,
+                        scale: isActive ? 1.05 : 1,
+                      }}
+                      transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                    >
+                      {item.label}
+                    </motion.span>
+
+                    {/* Active dot indicator */}
+                    <AnimatePresence>
+                      {isActive && (
+                        <motion.div
+                          className="absolute -bottom-1 w-1 h-1 bg-cyan-500 rounded-full"
+                          initial={{ scale: 0, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          exit={{ scale: 0, opacity: 0 }}
+                          transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                        />
+                      )}
+                    </AnimatePresence>
+                  </motion.button>
+                );
+              })}
             </div>
           </div>
+          
+          {/* iPhone home indicator */}
+          <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-gray-400/50 rounded-full" />
         </div>
 
         {/* Scroll to Top Button */}
@@ -499,7 +549,7 @@ function App() {
           {showScrollTop && (
             <motion.button
               onClick={scrollToTop}
-              className="fixed bottom-20 md:bottom-6 right-4 xl:right-8 p-3 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white rounded-2xl shadow-xl hover:shadow-cyan-500/25 z-50 group"
+              className="fixed bottom-24 md:bottom-6 right-4 xl:right-8 p-3 bg-gradient-to-r from-cyan-500 to-cyan-600 text-white rounded-2xl shadow-xl hover:shadow-cyan-500/25 z-40 group"
               initial={{ opacity: 0, scale: 0, y: 100 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0, y: 100 }}
